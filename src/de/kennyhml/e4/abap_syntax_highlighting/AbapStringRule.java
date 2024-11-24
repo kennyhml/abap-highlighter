@@ -12,12 +12,12 @@ public class AbapStringRule implements IRule {
 	public IToken evaluate(ICharacterScanner scanner) {
 		int c = scanner.read();
 
-		if (c != ICharacterScanner.EOF && isStringStart((char) c) || previousTokenWasEmbeddedVariable()) {
+		if (c != ICharacterScanner.EOF && (isStringStart((char) c) || previousTokenWasEmbeddedVariable())) {
 			fBuffer.setLength(0);
 			do {
 				fBuffer.append((char) c);
 				c = scanner.read();
-			} while (c != ICharacterScanner.EOF && isStringEndOrInterrupt((char) c));
+			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c));
 			scanner.unread();
 
 			((AbapToken) stringToken).setAssigned(fBuffer.toString());

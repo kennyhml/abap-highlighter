@@ -8,7 +8,7 @@ public class AbapRuleBasedScanner extends RuleBasedScanner {
 	
 	public AbapRuleBasedScanner() {
 		
-        setRules(new IRule[] { new AbapCommentRule(), new AbapKeywordRule(), new AbapOperatorRule(), new AbapIdentifierRule(), new AbapStringRule() });
+        setRules(new IRule[] { new AbapCommentRule(), new AbapKeywordRule(), new AbapOperatorRule(), new AbapDelimiterRule(), new AbapIdentifierRule(), new AbapStringRule() });
 	} 
 	
 }
