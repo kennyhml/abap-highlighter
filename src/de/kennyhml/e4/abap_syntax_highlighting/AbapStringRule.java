@@ -16,6 +16,7 @@ public class AbapStringRule implements IRule {
 			fBuffer.setLength(0);
 			do {
 				fBuffer.append((char) c);
+				previousChar = (char)c;
 				c = scanner.read();
 			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c));
 			scanner.unread();
@@ -33,7 +34,7 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected boolean isStringEndOrInterrupt(char c) {
-		return c == '\n' || c == '.' || c == '{';
+		return c == '\n' || ((previousChar == '\'' || previousChar == '|') && c == '.') || c == '{';
 	}
 
 	protected boolean previousTokenWasEmbeddedVariable() {
@@ -44,7 +45,8 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected StringBuilder fBuffer = new StringBuilder();
-
+	protected char previousChar = ' ';
+	
 	private static final Color STRING_COLOR = new Color(224, 122, 0);
 	private AbapToken stringToken = new AbapToken(STRING_COLOR, AbapToken.TokenType.STRING);
 }
