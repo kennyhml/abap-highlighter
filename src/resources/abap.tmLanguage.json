@@ -1,0 +1,342 @@
+{
+    "name": "ABAP",
+    "scopeName": "source.abap",
+    "uuid": "ACABDECD-4F22-47D9-A5F4-DBA957A2A1CC",
+    "fileTypes": [
+        "abc123",
+        "apclass"
+    ],
+    "patterns": [
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#comments"
+        },
+        {
+            "include": "#options-list"
+        },
+        {
+            "name": "keyword.other.abap",
+            "match": "\\b(import|lexer|parser|grammar|throws|catch|finally|mode)\\b"
+        },
+        {
+            "name": "meta.tokens.abap",
+            "begin": "\\btokens\\b",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.other.tokens.abap"
+                }
+            },
+            "end": "(?<=\\})",
+            "patterns": [
+                {
+                    "include": "#lexer-rule-reference"
+                },
+                {
+                    "include": "#comments"
+                }
+            ]
+        },
+        {
+            "name": "meta.channels.abap",
+            "begin": "\\bchannels\\b",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.other.channels.abap"
+                }
+            },
+            "end": "(?<=\\})",
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.options.end.abap"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#comments"
+                },
+                {
+                    "name": "constant.language.channel.abap",
+                    "match": "\\w+"
+                }
+            ]
+        },
+        {
+            "name": "meta.action.named.abap",
+            "begin": "(\\@[[:alpha:]]+)(::([\\p{L}]+))?",
+            "beginCaptures": {
+                "1": {
+                    "name": "entity.name.block.action.named.abap"
+                },
+                "2": {
+                    "name": "support.constant.action.named.abap"
+                }
+            },
+            "end": "(?<=\\})",
+            "patterns": [
+                {
+                    "name": "meta.action.block.abap",
+                    "begin": "{",
+                    "end": "}",
+                    "patterns": [
+                        {
+                            "include": "#comments"
+                        },
+                        {
+                            "include": "#action"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "meta.rule.lexer.abap",
+            "begin": "^(\\s*)(fragment)?(\\s*)([[:upper:]][[:alnum:]_]*)",
+            "beginCaptures": {
+                "2": {
+                    "name": "keyword.other.abap"
+                },
+                "4": {
+                    "name": "entity.name.function.lexer.abap"
+                }
+            },
+            "end": "(?<=\\;)",
+            "patterns": [
+                {
+                    "name": "meta.action.lexer.abap",
+                    "begin": "(->)\\s*([\\p{L}]+)",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.other.pointer.abap"
+                        },
+                        "2": {
+                            "name": "entity.name.function.abap"
+                        }
+                    },
+                    "end": "(?<=\\;)",
+                    "patterns": [
+                        {
+                            "match": "[\\w]+",
+                            "name": "entity.name.function.abap"
+                        },
+                        {
+                            "match": "\\(([\\w]+)\\)",
+                            "name": "variable.parameter.action.lexer.abap"
+                        }
+                    ]
+                },
+                {
+                    "include": "#comments"
+                },
+                {
+                    "include": "#character-range"
+                },
+                {
+                    "include": "#strings"
+                },
+                {
+                    "include": "#numeric"
+                },
+                {
+                    "include": "#lexer-rule-reference"
+                },
+                {
+                    "include": "#predicate"
+                },
+                {
+                    "include": "#action"
+                },
+                {
+                    "include": "#wildcard-regexp"
+                },
+                {
+                    "include": "#regexp-parts"
+                }
+            ]
+        },
+        {
+            "name": "meta.rule.parser.abap",
+            "begin": "^(\\s*)([[:lower:]][[:alnum:]_]*)",
+            "beginCaptures": {
+                "0": {
+                    "name": "entity.name.function.parser.abap"
+                }
+            },
+            "end": "(?<=;)",
+            "patterns": [
+                {
+                    "name": "variable.other",
+                    "match": "\\[.*?\\]"
+                },
+                {
+                    "name": "keyword.other.abap",
+                    "match": "\\b(returns|locals)\\b"
+                },
+                {
+                    "name": "keyword.other.abap",
+                    "match": "@\\w+"
+                },
+                {
+                    "name": "entity.other.rule.option",
+                    "match": " <.*?>"
+                },
+                {
+                    "name": "variable.other.abap",
+                    "match": "\\w+\\s*="
+                },
+                {
+                    "name": "entity.name.tag.abap",
+                    "match": "#\\s*[[:alnum:]_]+"
+                },
+                {
+                    "include": "#comments"
+                },
+                {
+                    "include": "#strings"
+                },
+                {
+                    "include": "#lexer-rule-reference"
+                },
+                {
+                    "include": "#parser-rule-reference"
+                },
+                {
+                    "include": "#predicate"
+                },
+                {
+                    "include": "#action"
+                },
+                {
+                    "include": "#wildcard-regexp"
+                },
+                {
+                    "include": "#regexp-parts"
+                },
+                {
+                    "include": "#options-list"
+                }
+            ]
+        }
+    ],
+    "repository": {
+        "identifier": {
+            "name": "constant.other.abap",
+            "match": "\\b\\D\\w*\\b"
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.block.abap",
+                    "begin": "\/\\*",
+                    "end": "\\*\/"
+                },
+                {
+                    "name": "comment.line.double-slash.abap",
+                    "match": "\/\/.*"
+                }
+            ]
+        },
+        "strings": {
+            "name": "string.quoted.single.abap",
+            "begin": "'",
+            "end": "'",
+            "patterns": [
+                {
+                    "match": "\\\\(u\\h{4}|.)",
+                    "name": "constant.character.escape.abap"
+                }
+            ]
+        },
+        "numeric": {
+            "name": "constant.numeric.abap",
+            "match": "\\d+"
+        },
+        "action": {
+            "name": "entity.other.block.abap",
+            "begin": "\\{",
+            "end": "\\}",
+            "patterns": [
+                {
+                    "include": "#action"
+                }
+            ]
+        },
+        "character-range": {
+            "name": "constant.other.abap",
+            "begin": "~?\\[",
+            "end": "\\](\\*|\\+|\\?)?",
+            "patterns": [
+                {
+                    "match": "\\\\(u\\h{4}|.)",
+                    "name": "constant.character.escape.abap"
+                }
+            ]
+        },
+        "wildcard-regexp": {
+            "name": "string.regexp.abap",
+            "match": "\\.((\\*|\\+)\\??)?"
+        },
+        "regexp-parts": {
+            "name": "string.regexp.abap",
+            "match": "(\\~|\\?|\\+(?!=)|\\*)(\\?)?"
+        },
+        "options-list": {
+            "name": "meta.options.abap",
+            "end": "(?<=\\})",
+            "begin": "\\boptions\\b",
+            "beginCaptures": {
+                "0": {
+                    "name": "keyword.other.options.abap"
+                }
+            },
+            "patterns": [
+                {
+                    "name": "meta.options.block.abap",
+                    "begin": "\\{",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.block.begin.abap"
+                        }
+                    },
+                    "end": "\\}",
+                    "endCaptures": {
+                        "0": {
+                            "name": "punctuation.block.end.abap"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "name": "variable.other.option.abap",
+                            "match": "\\b(superClass|language|tokenVocab|TokenLabelType|contextSuperClass|exportMacro)\\b"
+                        },
+                        {
+                            "include": "#strings"
+                        },
+                        {
+                            "include": "#comments"
+                        },
+                        {
+                            "include": "#identifier"
+                        },
+                        {
+                            "include": "#numeric"
+                        }
+                    ]
+                }
+            ]
+        },
+        "lexer-rule-reference": {
+            "name": "support.other.token.lexer.abap",
+            "match": "\\b[[:upper:]][[:alnum:]_]*(?!\\s*:)"
+        },
+        "parser-rule-reference": {
+            "name": "support.function.parser.abap",
+            "match": "\\b[[:lower:]][[:alnum:]_]*(?!\\s*:)"
+        },
+        "predicate": {
+            "name": "entity.other.predicate.abap",
+            "match": "\\{.*?\\}\\?"
+        }
+    }
+}
