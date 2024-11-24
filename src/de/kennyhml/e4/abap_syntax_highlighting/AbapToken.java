@@ -1,3 +1,4 @@
+package de.kennyhml.e4.abap_syntax_highlighting;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
@@ -23,7 +24,7 @@ public class AbapToken extends Token {
 	}
 	
 	public static enum TokenType {
-		IDENTIFIER, KEYWORD, OPERATOR, SEPERATOR, DELIMITER
+		IDENTIFIER, KEYWORD, OPERATOR, SEPERATOR, DELIMITER, COMMENT
 	};
 
 	// The type of this token

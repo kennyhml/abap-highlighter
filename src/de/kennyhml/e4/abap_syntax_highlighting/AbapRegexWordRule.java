@@ -1,3 +1,4 @@
+package de.kennyhml.e4.abap_syntax_highlighting;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;

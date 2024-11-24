@@ -1,3 +1,4 @@
+package de.kennyhml.e4.abap_syntax_highlighting;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IStartup;

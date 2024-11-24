@@ -1,3 +1,4 @@
+package de.kennyhml.e4.abap_syntax_highlighting;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -42,8 +43,10 @@ public class AbapKeywordRule extends AbapWordRule {
 	}
 
 	private static final String[] KEYWORDS = { "if", "else", "elseif", "endif", "class", "endclass", "method",
-			"endmethod", "methods", "type", "types", "implementation", "definition", "data", "table", "of", "public", "private",
-			"protected", "section", "begin" };
+			"endmethod", "methods", "type", "types", "implementation", "definition", "data", "table", "of", "public",
+			"private", "protected", "section", "begin", "end", "final", "create", "is", "not", "initial", "and", "or",
+			"importing", "exporting", "changing", "returning value", "raising", "receiving", "line", "range", "loop",
+			"at", "endloop", "endwhile", "append", "to" };
 
 	private AbapToken token = new AbapToken(new Color(86, 156, 214), AbapToken.TokenType.KEYWORD);
 }

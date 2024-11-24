@@ -1,3 +1,4 @@
+package de.kennyhml.e4.abap_syntax_highlighting;
 import java.util.Map;
 import java.util.regex.Pattern;
 

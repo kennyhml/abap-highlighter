@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.ui.startup">
       <startup
-            class="PluginStartup">
+            class="de.kennyhml.e4.abap_syntax_highlighting.PluginStartup">
       </startup>
    </extension>
 
