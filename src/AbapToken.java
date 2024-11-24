@@ -1,16 +1,17 @@
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.swt.graphics.Color;
 
 public class AbapToken extends Token {
 
-	public AbapToken(TextAttribute text, TokenType type) {
-		super(text);
-		fType = type;
+	public AbapToken(Color color, TokenType type) {
+		super(new TextAttribute(color));
+		fAbapType = type;
 
 	}
 
-	public TokenType getType() {
-		return fType;
+	public TokenType getAbapType() {
+		return fAbapType;
 	}
 	
 	public String getLastAssignment() {
@@ -26,7 +27,7 @@ public class AbapToken extends Token {
 	};
 
 	// The type of this token
-	protected TokenType fType;
+	protected TokenType fAbapType;
 	
 	// The string this token was last assigned to
 	protected String fLastAssignment;

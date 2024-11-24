@@ -1,4 +1,3 @@
-import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -36,13 +35,15 @@ public class AbapKeywordRule extends AbapWordRule {
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
+			AbapRuleBasedScanner.previousToken = (AbapToken) ret;
 		}
-		
+
 		return ret;
 	}
 
 	private static final String[] KEYWORDS = { "if", "else", "elseif", "endif", "class", "endclass", "method",
-			"endmethod", "methods", "type", "implementation", "definition", "data" };
+			"endmethod", "methods", "type", "types", "implementation", "definition", "data", "table", "of", "public", "private",
+			"protected", "section", "begin" };
 
-	private AbapToken token = new AbapToken(new TextAttribute(new Color(86, 156, 214)), AbapToken.TokenType.KEYWORD);
+	private AbapToken token = new AbapToken(new Color(86, 156, 214), AbapToken.TokenType.KEYWORD);
 }

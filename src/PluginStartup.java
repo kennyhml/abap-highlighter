@@ -44,27 +44,12 @@ import java.util.regex.Pattern;
 
 public class PluginStartup implements IStartup {
 
-	
-	public class CustomScanner extends RuleBasedScanner {
-	    public CustomScanner() {
-	        // Define token categories
-	    	
-	        IToken keywordToken = new Token(new TextAttribute(new Color(86, 156, 214)));
-	        
-	        IToken identifierToken = new Token(new TextAttribute(new Color(156, 220, 254)));
 
-	        
-	        setRules(new IRule[] { new AbapKeywordRule() });
-
-	    }
-	}
-	
-	
     private PresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
         PresentationReconciler reconciler = new PresentationReconciler();
 
         // Configure syntax highlighting for different content types
-        DefaultDamagerRepairer dr = new DefaultDamagerRepairer(new CustomScanner());
+        DefaultDamagerRepairer dr = new DefaultDamagerRepairer(new AbapRuleBasedScanner());
         reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
         reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
 
