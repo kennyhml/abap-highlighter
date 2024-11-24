@@ -48,27 +48,13 @@ public class PluginStartup implements IStartup {
 	public class CustomScanner extends RuleBasedScanner {
 	    public CustomScanner() {
 	        // Define token categories
-	        IToken keywordToken = new Token(new TextAttribute(new Color(255, 0, 0)));
-	        IToken commentToken = new Token(new TextAttribute(new Color(255, 255, 0)));
+	    	
+	        IToken keywordToken = new Token(new TextAttribute(new Color(86, 156, 214)));
+	        
+	        IToken identifierToken = new Token(new TextAttribute(new Color(156, 220, 254)));
 
-	        // Create rules for detecting keywords and comments
-	        RegexWordRule regexRule = new RegexWordRule(new IWordDetector() {
-				
-	            @Override
-	            public boolean isWordStart(char c) {
-	                return Character.isJavaIdentifierStart(c);
-	            }
-
-	            @Override
-	            public boolean isWordPart(char c) {
-	                return Character.isJavaIdentifierPart(c);
-	            }
-	        });
-
-	       
-	        regexRule.addWord("(?i)(class|endclass)", keywordToken);
-
-	        setRules(new IRule[] { regexRule });
+	        
+	        setRules(new IRule[] { new AbapKeywordRule() });
 
 	    }
 	}

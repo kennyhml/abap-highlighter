@@ -8,9 +8,9 @@ import java.util.regex.Pattern;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegexWordRule extends WordRule {
+public class AbapRegexWordRule extends WordRule {
 
-	public RegexWordRule(IWordDetector detector) {
+	public AbapRegexWordRule(IWordDetector detector) {
 		super(detector);
 	};
 
