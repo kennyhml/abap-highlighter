@@ -24,7 +24,7 @@ public class AbapToken extends Token {
 	}
 	
 	public static enum TokenType {
-		IDENTIFIER, KEYWORD, OPERATOR, SEPERATOR, DELIMITER, COMMENT, STRING, LITERAL
+		IDENTIFIER, KEYWORD, OPERATOR, SEPERATOR, DELIMITER, COMMENT, STRING, LITERAL, SUBROUTINE
 	};
 
 	// The type of this token

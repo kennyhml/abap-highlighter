@@ -17,7 +17,7 @@ public class AbapKeywordRule extends AbapWordRule {
 
 		@Override
 		public boolean isWordPart(char c) {
-			return !Character.isWhitespace(c) && c != '\n' && c != '.' && c != '(';
+			return !Character.isWhitespace(c) && c != '\n' && c != '.' && c != '(' && c != ':';
 		}
 
 	}

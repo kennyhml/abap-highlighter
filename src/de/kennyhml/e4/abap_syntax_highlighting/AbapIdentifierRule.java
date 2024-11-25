@@ -39,20 +39,26 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 			
 			AbapToken prev = AbapRuleBasedScanner.previousToken;
 			// Check if the identifier is a class type
-			if (prev != null && prev.getAbapType() == AbapToken.TokenType.KEYWORD 
-					&& prev.getLastAssignment().equals("class")) {
-				ret = classToken;
+			if (prev != null && prev.getAbapType() == AbapToken.TokenType.KEYWORD) {
+				String prevTerm = prev.getLastAssignment();
+				if (prevTerm.equals("class")) {
+					ret = classToken;
+				} else if (prevTerm.equals("type") || prevTerm.equals("raising")) {
+					ret = typeToken;
+				}
 			}
 			AbapRuleBasedScanner.previousToken = (AbapToken)ret;
 		}
-		
 		return ret;
 	}
 
 
 	private static final Color GENERIC_COLOR = new Color(156, 220, 254);
 	private static final Color CLASS_COLOR = new Color(78, 201, 176);
+	private static final Color TYPE_COLOR = new Color(78, 201, 176);
+	private static final Color FIELD_COLOR = new Color(147, 115, 165);
 	
 	private AbapToken genericToken = new AbapToken(GENERIC_COLOR, AbapToken.TokenType.IDENTIFIER);
 	private AbapToken classToken = new AbapToken(CLASS_COLOR, AbapToken.TokenType.IDENTIFIER);
+	private AbapToken typeToken = new AbapToken(TYPE_COLOR, AbapToken.TokenType.IDENTIFIER);
 }
