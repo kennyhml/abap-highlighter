@@ -37,7 +37,7 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
 			
-			AbapToken prev = AbapRuleBasedScanner.previousToken;
+			AbapToken prev = AbapScanner.getPreviousToken();
 			// Check if the identifier is a class type
 			if (prev != null && prev.getAbapType() == AbapToken.TokenType.KEYWORD) {
 				String prevTerm = prev.getLastAssignment();
@@ -47,7 +47,7 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 					ret = typeToken;
 				}
 			}
-			AbapRuleBasedScanner.previousToken = (AbapToken)ret;
+			AbapScanner.pushToken((AbapToken)ret);
 		}
 		return ret;
 	}

@@ -23,7 +23,7 @@ public class PluginStartup implements IStartup {
     private PresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
         PresentationReconciler reconciler = new PresentationReconciler();
 
-        DefaultDamagerRepairer dr = new DefaultDamagerRepairer(new AbapRuleBasedScanner());
+        DefaultDamagerRepairer dr = new DefaultDamagerRepairer(new AbapScanner());
         reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
         reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
 

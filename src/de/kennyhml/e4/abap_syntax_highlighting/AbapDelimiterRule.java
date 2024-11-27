@@ -37,12 +37,12 @@ public class AbapDelimiterRule extends AbapWordRule {
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
-			AbapRuleBasedScanner.previousToken = (AbapToken)ret;
+			AbapScanner.pushToken((AbapToken)ret);
 		}
 		return ret;
 	}
 
-	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']');
+	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']', ':', '.', ',');
 	
 	private static AbapToken token = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.DELIMITER);
 }

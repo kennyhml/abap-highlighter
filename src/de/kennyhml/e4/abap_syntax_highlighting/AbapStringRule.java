@@ -22,6 +22,7 @@ public class AbapStringRule implements IRule {
 			scanner.unread();
 
 			((AbapToken) stringToken).setAssigned(fBuffer.toString());
+			AbapScanner.pushToken((AbapToken)stringToken);
 			return stringToken;
 		}
 
@@ -38,7 +39,7 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected boolean previousTokenWasEmbeddedVariable() {
-		AbapToken prev = AbapRuleBasedScanner.previousToken;
+		AbapToken prev = AbapScanner.getPreviousToken();
 		return prev != null && prev.getAbapType() == AbapToken.TokenType.DELIMITER
 				&& prev.getLastAssignment().equals("}");
 

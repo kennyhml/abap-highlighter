@@ -34,7 +34,7 @@ public class AbapLiteralRule extends AbapRegexWordRule {
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
-			AbapRuleBasedScanner.previousToken = (AbapToken)ret;
+			AbapScanner.pushToken((AbapToken)ret);
 		}
 		
 		return ret;

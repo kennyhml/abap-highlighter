@@ -39,13 +39,13 @@ public class AbapOperatorRule extends AbapWordRule {
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
-			AbapRuleBasedScanner.previousToken = (AbapToken)ret;
+			AbapScanner.pushToken((AbapToken)ret);
 		}
 
 		return ret;
 	}
 
-	private static final String[] OPERATORS = { "=>", "->", ".", "-", "+", "-" };
+	private static final String[] OPERATORS = { "=>", "->", "-", "+", "-" };
 
 	private static AbapToken token = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.OPERATOR);
 }
