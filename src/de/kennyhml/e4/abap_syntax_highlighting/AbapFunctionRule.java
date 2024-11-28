@@ -15,7 +15,7 @@ public class AbapFunctionRule implements IRule {
 
 		@Override
 		public boolean isWordStart(char c) {
-			return Character.isLetter(c) || Character.isWhitespace(c);
+			return Character.isLetter(c);
 		}
 
 		@Override
@@ -41,16 +41,13 @@ public class AbapFunctionRule implements IRule {
 		//			bar,
 		//			baz.
 		else if (AbapScanner.tokenMatchesAny(0, TokenType.DELIMITER, fCallDelimiters)) {
-			isDeclaration |= (AbapScanner.tokenMatches(1, TokenType.KEYWORD, "methods")
-					|| AbapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*"));
+			isDeclaration |= (AbapScanner.tokenMatchesAny(1, TokenType.KEYWORD, fCallDeclarations)
+					|| AbapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*")); // <-- This doesnt work if parameters are declared :/
 		}
 
-		// Check if previous token is `->` or `=>` from non decl call, for example:
-		// lo_app->foo( ).
-		if (!isDeclaration && !AbapScanner.tokenMatchesAny(0, TokenType.OPERATOR, fCallOperators)) {
-			return Token.UNDEFINED;
-		}
-
+		// If its not a declaration we must walk to the end of the word in either cause as it
+		// could either be `lo_app->foo()` or just `foo()` if called internally.
+		
 		int c = scanner.read();
 		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
 
@@ -81,7 +78,7 @@ public class AbapFunctionRule implements IRule {
 
 	private static String[] fCallDelimiters = new String[] { ":", "," };
 	private static String[] fCallOperators = new String[] { "->", "=>" };
-	private static String[] fCallDeclarations = new String[] { "methods", "method"};
+	private static String[] fCallDeclarations = new String[] { "methods", "method", "class-methods"};
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 	

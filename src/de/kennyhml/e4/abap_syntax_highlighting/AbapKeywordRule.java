@@ -37,7 +37,7 @@ public class AbapKeywordRule extends AbapWordRule {
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
-			AbapScanner.pushToken((AbapToken)ret);
+			AbapScanner.pushToken((AbapToken) ret);
 		}
 
 		return ret;
@@ -48,7 +48,8 @@ public class AbapKeywordRule extends AbapWordRule {
 			"private", "protected", "section", "begin", "end", "final", "create", "is", "not", "initial", "and", "or",
 			"importing", "exporting", "changing", "returning value", "raising", "receiving", "line", "range", "loop",
 			"at", "endloop", "endwhile", "append", "to", "modify", "from", "select", "into", "for", "all", "entries",
-			"in", "where", "single", "value", "standard" };
+			"in", "where", "single", "value", "standard", "ref", "when", "write", "inheriting", "returning",
+			"class-methods", "case", "others", "abstract" };
 
 	private AbapToken token = new AbapToken(new Color(86, 156, 214), AbapToken.TokenType.KEYWORD);
 }
