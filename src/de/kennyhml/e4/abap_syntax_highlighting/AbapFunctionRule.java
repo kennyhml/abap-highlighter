@@ -9,9 +9,9 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
-public class AbapSubroutineRule implements IRule {
+public class AbapFunctionRule implements IRule {
 
-	private static class SubroutineDetector implements IWordDetector {
+	private static class FunctionDetector implements IWordDetector {
 
 		@Override
 		public boolean isWordStart(char c) {
@@ -33,21 +33,21 @@ public class AbapSubroutineRule implements IRule {
 		// methods foo.
 		// Or for previous `method` keyword (from method, endmethod block), for example:
 		// method foo.
-		if (AbapScanner.tokenMatchesAny(0, TokenType.KEYWORD, callDeclarations)) {
+		if (AbapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fCallDeclarations)) {
 			isDeclaration = true;
 		}
 		// Check if previous token is `:` or `,` for example:
 		// methods: foo,
 		//			bar,
 		//			baz.
-		else if (AbapScanner.tokenMatchesAny(0, TokenType.DELIMITER, callDelimiters)) {
+		else if (AbapScanner.tokenMatchesAny(0, TokenType.DELIMITER, fCallDelimiters)) {
 			isDeclaration |= (AbapScanner.tokenMatches(1, TokenType.KEYWORD, "methods")
-					|| AbapScanner.tokenMatches(1, TokenType.SUBROUTINE, "*"));
+					|| AbapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*"));
 		}
 
 		// Check if previous token is `->` or `=>` from non decl call, for example:
 		// lo_app->foo( ).
-		if (!isDeclaration && !AbapScanner.tokenMatchesAny(0, TokenType.OPERATOR, callOperators)) {
+		if (!isDeclaration && !AbapScanner.tokenMatchesAny(0, TokenType.OPERATOR, fCallOperators)) {
 			return Token.UNDEFINED;
 		}
 
@@ -65,9 +65,9 @@ public class AbapSubroutineRule implements IRule {
 			// call must have parantheses to differentiate from var / type access
 			// declarations do not have the parantheses.
 			if (c == '(' || isDeclaration) {
-				subroutineToken.setAssigned(fBuffer.toString());
-				AbapScanner.pushToken(subroutineToken);
-				return subroutineToken;
+				fSubroutineToken.setAssigned(fBuffer.toString());
+				AbapScanner.pushToken(fSubroutineToken);
+				return fSubroutineToken;
 			}
 
 			// Not a function call, rewind the scanner
@@ -79,13 +79,14 @@ public class AbapSubroutineRule implements IRule {
 		return Token.UNDEFINED;
 	}
 
-	private static String[] callDelimiters = new String[] { ":", "," };
-	private static String[] callOperators = new String[] { "->", "=>" };
-	private static String[] callDeclarations = new String[] { "methods", "method"};
+	private static String[] fCallDelimiters = new String[] { ":", "," };
+	private static String[] fCallOperators = new String[] { "->", "=>" };
+	private static String[] fCallDeclarations = new String[] { "methods", "method"};
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
-	private AbapToken subroutineToken = new AbapToken(SUBROUTINE_COLOR, AbapToken.TokenType.SUBROUTINE);
+	
+	private AbapToken fSubroutineToken = new AbapToken(SUBROUTINE_COLOR, TokenType.FUNCTION_CALL);
 
-	private IWordDetector fDetector = new SubroutineDetector();
+	private IWordDetector fDetector = new FunctionDetector();
 	private StringBuilder fBuffer = new StringBuilder();
 }
