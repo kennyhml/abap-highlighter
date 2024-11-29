@@ -45,7 +45,7 @@ public class AbapOperatorRule extends AbapWordRule {
 		return ret;
 	}
 
-	private static final String[] OPERATORS = { "=>", "->", "-", "+", "-" };
+	private static final String[] OPERATORS = { "=>", "->", "-", "+", "-", "=" };
 
 	private static AbapToken token = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.OPERATOR);
 }
