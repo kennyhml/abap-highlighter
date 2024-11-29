@@ -49,7 +49,7 @@ public class AbapKeywordRule extends AbapWordRule {
 			"importing", "exporting", "changing", "returning value", "raising", "receiving", "line", "range", "loop",
 			"at", "endloop", "endwhile", "append", "to", "modify", "from", "select", "into", "for", "all", "entries",
 			"in", "where", "single", "value", "standard", "ref", "when", "write", "inheriting", "returning",
-			"class-methods", "case", "others", "abstract", "assigning", "field-symbol" };
+			"class-methods", "case", "others", "abstract", "assigning", "field-symbol", "new" };
 
 	private AbapToken token = new AbapToken(new Color(86, 156, 214), AbapToken.TokenType.KEYWORD);
 }

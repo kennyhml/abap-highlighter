@@ -29,6 +29,11 @@ public class AbapFunctionRule implements IRule {
 		// Decls are not followed by parantheses, so we dont need to walk to them.
 		boolean isDeclaration = false;
 
+		// Prevent class initialization being tokenized as function call
+		if (AbapScanner.tokenMatches(0, TokenType.KEYWORD, "new")) {
+			return Token.UNDEFINED;
+		}
+		
 		// Check for previous `methods` keyword, for example:
 		// methods foo.
 		// Or for previous `method` keyword (from method, endmethod block), for example:
