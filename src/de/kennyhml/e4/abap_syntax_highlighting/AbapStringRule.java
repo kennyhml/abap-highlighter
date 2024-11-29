@@ -6,6 +6,8 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
+import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
+
 public class AbapStringRule implements IRule {
 
 	@Override
@@ -16,13 +18,16 @@ public class AbapStringRule implements IRule {
 			fBuffer.setLength(0);
 			do {
 				fBuffer.append((char) c);
-				previousChar = (char)c;
+				if (!Character.isWhitespace(c)) {
+					previousChar = (char) c;
+				}
 				c = scanner.read();
 			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c));
 			scanner.unread();
+			String read = fBuffer.toString();
 
 			((AbapToken) stringToken).setAssigned(fBuffer.toString());
-			AbapScanner.pushToken((AbapToken)stringToken);
+			AbapScanner.pushToken((AbapToken) stringToken);
 			return stringToken;
 		}
 
@@ -35,19 +40,16 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected boolean isStringEndOrInterrupt(char c) {
-		return c == '\n' || ((previousChar == '\'' || previousChar == '|') && c == '.') || c == '{';
+		return c == '\n' || ((previousChar == '\'' || previousChar == '|') && (c == '.' || c == ')')) || c == '{';
 	}
 
 	protected boolean previousTokenWasEmbeddedVariable() {
-		AbapToken prev = AbapScanner.getPreviousToken();
-		return prev != null && prev.getAbapType() == AbapToken.TokenType.DELIMITER
-				&& prev.getLastAssignment().equals("}");
-
+		return AbapScanner.tokenMatches(0, TokenType.DELIMITER, "}");
 	}
 
 	protected StringBuilder fBuffer = new StringBuilder();
 	protected char previousChar = ' ';
-	
+
 	private static final Color STRING_COLOR = new Color(224, 122, 0);
 	private AbapToken stringToken = new AbapToken(STRING_COLOR, AbapToken.TokenType.STRING);
 }

@@ -7,9 +7,9 @@ public class AbapScanner extends RuleBasedScanner {
 
 	public AbapScanner() {
 
-		setRules(new IRule[] { new AbapNonCharRule(), new AbapCommentRule(), new AbapKeywordRule(),
+		setRules(new IRule[] { new AbapNonCharRule(),  new AbapCommentRule(), new AbapStringRule(), new AbapKeywordRule(),
 				new AbapOperatorRule(), new AbapDelimiterRule(), new AbapFunctionRule(), new AbapFieldRule(),
-				new AbapIdentifierRule(), new AbapStringRule(), new AbapLiteralRule() });
+				new AbapIdentifierRule(), new AbapLiteralRule() });
 	}
 
 	public static boolean tokenMatches(int offsetFromEnd, AbapToken.TokenType type, String term) {
