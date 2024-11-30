@@ -1,5 +1,7 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
 
+import java.util.Arrays;
+
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 
@@ -29,6 +31,10 @@ public class AbapScanner extends RuleBasedScanner {
 
 	public static AbapToken getPreviousToken(int offsetFromEnd) {
 		return previousTokens[4 - offsetFromEnd];
+	}
+	
+	public static void wipeTokens() {
+		Arrays.fill(previousTokens, null);
 	}
 
 	public static void pushToken(AbapToken token) {
