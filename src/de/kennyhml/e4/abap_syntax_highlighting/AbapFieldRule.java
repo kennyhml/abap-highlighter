@@ -26,14 +26,14 @@ public class AbapFieldRule implements IRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		AbapScanner abapScanner = ((AbapScanner)scanner);
 		
-		// previous token must be - (assuming structure field access)
-		// Consider using this for access to class fields too? :think:
-		// Only makes sense with a way to differentiate them inside classes though
-		if (!AbapScanner.tokenMatches(0, TokenType.OPERATOR, "-")) {
+		// Previous token must either be a struct access or a sql select.
+		// It could also be a comma and a field in case of a multi field selection
+		if (!abapScanner.tokenMatchesAny(0, TokenType.OPERATOR, fFieldInitiators)) {
 			return Token.UNDEFINED;
 		}
-		
+
 		int c = scanner.read();
 		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
 
@@ -45,6 +45,8 @@ public class AbapFieldRule implements IRule {
 			} while (c != ICharacterScanner.EOF && fDetector.isWordPart((char) c));
 			scanner.unread();
 
+			((AbapToken) fFieldToken).setAssigned(fBuffer.toString());
+			abapScanner.pushToken((AbapToken)fFieldToken);
 			return fFieldToken;
 		}
 		scanner.unread();
@@ -52,9 +54,10 @@ public class AbapFieldRule implements IRule {
 	}
 
 	private static final Color FIELD_COLOR = new Color(147, 115, 165);
-	
+
 	private AbapToken fFieldToken = new AbapToken(FIELD_COLOR, TokenType.FIELD);
 
+	private String[] fFieldInitiators = new String[] {"-", "~"};
 	private IWordDetector fDetector = new FieldDetector();
 	private StringBuilder fBuffer = new StringBuilder();
 }

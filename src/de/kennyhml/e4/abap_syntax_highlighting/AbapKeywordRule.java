@@ -32,12 +32,14 @@ public class AbapKeywordRule extends AbapWordRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		AbapScanner abapScanner = ((AbapScanner)scanner);
+		
 		IToken ret = super.evaluate(scanner);
 
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
-			AbapScanner.pushToken((AbapToken) ret);
+			abapScanner.pushToken((AbapToken) ret);
 		}
 
 		return ret;
@@ -49,7 +51,9 @@ public class AbapKeywordRule extends AbapWordRule {
 			"importing", "exporting", "changing", "returning value", "raising", "receiving", "line", "range", "loop",
 			"at", "endloop", "endwhile", "append", "to", "modify", "from", "select", "into", "for", "all", "entries",
 			"in", "where", "single", "value", "standard", "ref", "when", "write", "inheriting", "returning",
-			"class-methods", "case", "others", "abstract", "assigning", "field-symbol", "new", "try", "catch", "endtry" };
+			"class-methods", "case", "others", "abstract", "assigning", "field-symbol", "new", "try", "catch", "endtry", 
+			"join", "inner", "outer", "left"," right", "like", "update", "set", "delete", "modify", "no-gaps", "condense", 
+			"concatenate", "on", "as", "raise", "exception", "constants", "optional", "default", "call"   };
 
 	private AbapToken token = new AbapToken(new Color(86, 156, 214), AbapToken.TokenType.KEYWORD);
 }

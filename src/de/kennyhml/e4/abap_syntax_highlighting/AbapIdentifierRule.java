@@ -33,6 +33,7 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		AbapScanner abapScanner = ((AbapScanner)scanner);
 		IToken ret = super.evaluate(scanner);
 
 		// Assign the last word we found to the token
@@ -41,12 +42,12 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 
 			// Check if previous token leads to a type, `ref to` are two tokens and need
 			// seperate checking. Only checking `to` would lead to mismatches.
-			if (AbapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fTypeReferences)
-					|| (AbapScanner.tokenMatches(0, TokenType.KEYWORD, "to")
-							&& AbapScanner.tokenMatches(1, TokenType.KEYWORD, "ref"))) {
+			if (abapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fTypeReferences)
+					|| (abapScanner.tokenMatches(0, TokenType.KEYWORD, "to")
+							&& abapScanner.tokenMatches(1, TokenType.KEYWORD, "ref"))) {
 				ret = typeToken;
 			}
-			AbapScanner.pushToken((AbapToken) ret);
+			abapScanner.pushToken((AbapToken) ret);
 		}
 		return ret;
 	}

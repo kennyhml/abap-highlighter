@@ -28,12 +28,13 @@ public class AbapFunctionRule implements IRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		AbapScanner abapScanner = ((AbapScanner)scanner);
+		
 		// Decls are not followed by parantheses, so we dont need to walk to them.
 		boolean isDeclaration = false;
 		boolean mightBeDeclaration = false;
-
 		// Prevent class initialization being tokenized as function call
-		if (AbapScanner.tokenMatches(0, TokenType.KEYWORD, "new")) {
+		if (abapScanner.tokenMatches(0, TokenType.KEYWORD, "new")) {
 			return Token.UNDEFINED;
 		}
 		
@@ -41,19 +42,19 @@ public class AbapFunctionRule implements IRule {
 		// methods foo.
 		// Or for previous `method` keyword (from method, endmethod block), for example:
 		// method foo.
-		if (AbapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fCallDeclarations)) {
+		if (abapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fCallDeclarations)) {
 			isDeclaration = true;
 		}
 		// Check if previous token is `:` or `,` for example:
 		// methods: foo,
 		//			bar,
 		//			baz.
-		else if (AbapScanner.tokenMatchesAny(0, TokenType.DELIMITER, fCallDelimiters)) {
+		else if (abapScanner.tokenMatchesAny(0, TokenType.DELIMITER, fCallDelimiters)) {
 			mightBeDeclaration = true;
 			// Check if the token before `:` or `,` is a METHODS keyword or a function token
 			// This wont work if the functions defined also have parameters though.
-			isDeclaration |= (AbapScanner.tokenMatchesAny(1, TokenType.KEYWORD, fCallDeclarations)
-					|| AbapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*")); 
+			isDeclaration |= (abapScanner.tokenMatchesAny(1, TokenType.KEYWORD, fCallDeclarations)
+					|| abapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*")); 
 		}
 		
 		// If its not a declaration we must walk to the end of the word in either cause as it
@@ -75,7 +76,7 @@ public class AbapFunctionRule implements IRule {
 			String read = fBuffer.toString();
 			if (c == '(' || isDeclaration || (mightBeDeclaration && checkIsMultiDeclaration(scanner))) {
 				fSubroutineToken.setAssigned(read);
-				AbapScanner.pushToken(fSubroutineToken);
+				abapScanner.pushToken(fSubroutineToken);
 				return fSubroutineToken;
 			}
 			
@@ -90,6 +91,11 @@ public class AbapFunctionRule implements IRule {
 	
 	
 	private boolean checkIsMultiDeclaration(ICharacterScanner scanner) {
+		
+		if (!((AbapScanner)scanner).hasToken("methods")) {
+			return false;
+		}
+		
 		StringBuilder buffer = new StringBuilder();
 		int c = scanner.read();
 		int times_read = 1;

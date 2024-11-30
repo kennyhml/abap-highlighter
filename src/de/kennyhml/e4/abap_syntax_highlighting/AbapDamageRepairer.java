@@ -41,7 +41,7 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 			} catch (BadLocationException e) { 
 				end -= 1;
 			}
-			AbapScanner.wipeTokens();
+			((AbapScanner)fScanner).resetCache();
 			return new Region(start, end - start);
 		} catch (Exception e) { }
 		return super.getDamageRegion(partition, event, documentPartitioningChanged);

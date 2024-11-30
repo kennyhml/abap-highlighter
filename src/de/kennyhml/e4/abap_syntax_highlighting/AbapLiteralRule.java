@@ -29,12 +29,13 @@ public class AbapLiteralRule extends AbapRegexWordRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		AbapScanner abapScanner = ((AbapScanner)scanner);
 		IToken ret = super.evaluate(scanner);
 
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
 			((AbapToken) ret).setAssigned(fLastWord);
-			AbapScanner.pushToken((AbapToken)ret);
+			abapScanner.pushToken((AbapToken)ret);
 		}
 		
 		return ret;

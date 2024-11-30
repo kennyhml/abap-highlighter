@@ -1,9 +1,12 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
 
-import java.util.Arrays;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
+
+import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
 
 public class AbapScanner extends RuleBasedScanner {
 
@@ -14,41 +17,43 @@ public class AbapScanner extends RuleBasedScanner {
 				new AbapIdentifierRule(), new AbapLiteralRule() });
 	}
 
-	public static boolean tokenMatches(int offsetFromEnd, AbapToken.TokenType type, String term) {
+	public boolean tokenMatches(int offsetFromEnd, TokenType type, String term) {
 		AbapToken token = getPreviousToken(offsetFromEnd);
 		return token != null && token.matches(type, term);
 	}
 
-	public static boolean tokenMatchesAny(int offsetFromEnd, AbapToken.TokenType type, String[] terms) {
+	public boolean tokenMatchesAny(int offsetFromEnd, TokenType type, String[] terms) {
 		AbapToken token = getPreviousToken(offsetFromEnd);
 		return token != null && token.matchesAny(type, terms);
 	}
 
-	public static AbapToken getPreviousToken() {
+	public  AbapToken getPreviousToken() {
 		return getPreviousToken(0);
 
 	}
+	
+	public boolean hasToken(String token) {
+		return fPreviousTokenStrings.contains(token);
+	}
 
-	public static AbapToken getPreviousToken(int offsetFromEnd) {
-		return previousTokens[4 - offsetFromEnd];
+	public AbapToken getPreviousToken(int offsetFromEnd) {
+		try {
+			return fPreviousTokens.get((fPreviousTokens.size() - 1) - offsetFromEnd);
+		} catch (IndexOutOfBoundsException e) {
+			return null;
+		}
 	}
 	
-	public static void wipeTokens() {
-		Arrays.fill(previousTokens, null);
+	public void resetCache() {
+		fPreviousTokens.clear();
+		fPreviousTokenStrings.clear();
 	}
 
-	public static void pushToken(AbapToken token) {
-
-		// Move all token (besides the first) one to the left
-		for (int i = 0; i < previousTokens.length - 1; i++) {
-			previousTokens[i] = previousTokens[i + 1];
-		}
-
-		// Push the new token
-		previousTokens[4] = new AbapToken(token);
+	public void pushToken(AbapToken token) {
+		fPreviousTokens.add(new AbapToken(token));
+		fPreviousTokenStrings.add(token.getLastAssignment());
 	}
 
-	// Store the last 5 tokens
-	private static AbapToken[] previousTokens = new AbapToken[5];
-
+	private List<AbapToken>  fPreviousTokens = new ArrayList<>();
+	private HashSet<String> fPreviousTokenStrings = new HashSet<String>();
 }

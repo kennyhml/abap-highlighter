@@ -12,15 +12,16 @@ public class AbapStringRule implements IRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
+		AbapScanner abapScanner = ((AbapScanner)scanner);
 		int c = scanner.read();
 
-		if (c != ICharacterScanner.EOF && (isStringStart((char) c) || previousTokenWasEmbeddedVariable())) {
+		if (c != ICharacterScanner.EOF && (isStringStart((char) c) || previousTokenWasEmbeddedVariable(abapScanner))) {
 
 			// Consider a string like |{ iv_value }|. For the parser it looks like both a start and
 			// a continuation when in reality we should be terminating the string here.
-			if (isStringStart((char)c) && previousTokenWasEmbeddedVariable()) {
+			if (isStringStart((char)c) && previousTokenWasEmbeddedVariable(abapScanner)) {
 				((AbapToken) stringToken).setAssigned("|");
-				AbapScanner.pushToken((AbapToken) stringToken);
+				abapScanner.pushToken((AbapToken) stringToken);
 				return stringToken;
 			}
 			
@@ -39,7 +40,7 @@ public class AbapStringRule implements IRule {
 			}
 			
 			((AbapToken) stringToken).setAssigned(fBuffer.toString());
-			AbapScanner.pushToken((AbapToken) stringToken);
+			abapScanner.pushToken((AbapToken) stringToken);
 			return stringToken;
 		}
 
@@ -55,8 +56,8 @@ public class AbapStringRule implements IRule {
 		return c == '\n' || c == '\'' || c == '|' || c == '{';
 	}
 
-	protected boolean previousTokenWasEmbeddedVariable() {
-		return AbapScanner.tokenMatches(0, TokenType.DELIMITER, "}");
+	protected boolean previousTokenWasEmbeddedVariable(AbapScanner scanner) {
+		return scanner.tokenMatches(0, TokenType.DELIMITER, "}");
 	}
 
 	protected StringBuilder fBuffer = new StringBuilder();
