@@ -27,13 +27,26 @@ public class AbapFieldRule implements IRule {
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
 		AbapScanner abapScanner = ((AbapScanner)scanner);
-		
-		// Previous token must either be a struct access or a sql select.
-		// It could also be a comma and a field in case of a multi field selection
-		if (!abapScanner.tokenMatchesAny(0, TokenType.OPERATOR, fFieldInitiators)) {
+
+		/* Check if previous token is a field initiator, for example
+		 * 
+		 * struct-field
+		 * or
+		 * table~field
+		 * 
+		 * Check if the previous token is part of a table key definition, for example
+		 * 
+		 * ... key connid.
+		 * Or if its predecessor was part of a table key definition, for example
+		 * 
+		 * ... key connid, carrid.
+		 */
+		if (!abapScanner.tokenMatchesAny(0, TokenType.OPERATOR, fFieldInitiators) 
+				&& !abapScanner.tokenMatches(0, TokenType.KEYWORD, "key") 
+				&& !abapScanner.tokenMatches(0, TokenType.FIELD, "*"))  {
 			return Token.UNDEFINED;
 		}
-
+	
 		int c = scanner.read();
 		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
 
