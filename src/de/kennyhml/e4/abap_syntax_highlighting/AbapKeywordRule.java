@@ -53,7 +53,7 @@ public class AbapKeywordRule extends AbapWordRule {
 			"in", "where", "single", "value", "standard", "ref", "when", "write", "inheriting", "returning",
 			"class-methods", "case", "others", "abstract", "assigning", "field-symbol", "new", "try", "catch", "endtry", 
 			"join", "inner", "outer", "left"," right", "like", "update", "set", "delete", "modify", "no-gaps", "condense", 
-			"concatenate", "on", "as", "raise", "exception", "constants", "optional", "default", "call"   };
+			"concatenate", "on", "as", "raise", "exception", "constants", "optional", "default", "call", "with", "non-unique", "unique", "key" };
 
 	private AbapToken token = new AbapToken(new Color(86, 156, 214), AbapToken.TokenType.KEYWORD);
 }
