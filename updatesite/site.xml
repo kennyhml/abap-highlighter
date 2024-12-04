@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/feature_1.0.0.202412042031.jar" id="feature" version="1.0.0.202412042031"/>
+   <feature url="features/de.kennyhml.abap.syntax_highlighting_1.0.1.jar" id="de.kennyhml.abap.syntax_highlighting" version="1.0.1">
+      <category name="de.kennyhml.abap.syntax_highlighting"/>
+   </feature>
+   <category-def name="de.kennyhml.abap.syntax_highlighting" label="ABAP">
+      <description>
+         Features enhancing the ABAP programming experience
+      </description>
+   </category-def>
 </site>
