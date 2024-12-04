@@ -28,16 +28,24 @@ public class AbapFunctionRule implements IRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
-		AbapScanner abapScanner = ((AbapScanner)scanner);
-		
+		AbapScanner abapScanner = ((AbapScanner) scanner);
+
 		// Decls are not followed by parantheses, so we dont need to walk to them.
 		boolean isDeclaration = false;
 		boolean mightBeDeclaration = false;
-		// Prevent class initialization being tokenized as function call
-		if (abapScanner.tokenMatches(0, TokenType.KEYWORD, "new")) {
+
+		// Check for some keywords that initiate a call-like sequence, such as
+		// Class initialization: 
+		//		new z_class( ).
+		// Type casts: 
+		// 		conv z_custom_Type( lv_value ).
+		// Inline assignments: 
+		//		data(ls_struct) = value struct_type( field1 = 'X' ... ).
+		// As their token must be a type instead.
+		if (abapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fTypeInitiators)) {
 			return Token.UNDEFINED;
 		}
-		
+
 		// Check for previous `methods` keyword, for example:
 		// methods foo.
 		// Or for previous `method` keyword (from method, endmethod block), for example:
@@ -47,19 +55,20 @@ public class AbapFunctionRule implements IRule {
 		}
 		// Check if previous token is `:` or `,` for example:
 		// methods: foo,
-		//			bar,
-		//			baz.
+		// bar,
+		// baz.
 		else if (abapScanner.tokenMatchesAny(0, TokenType.DELIMITER, fCallDelimiters)) {
 			mightBeDeclaration = true;
 			// Check if the token before `:` or `,` is a METHODS keyword or a function token
 			// This wont work if the functions defined also have parameters though.
 			isDeclaration |= (abapScanner.tokenMatchesAny(1, TokenType.KEYWORD, fCallDeclarations)
-					|| abapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*")); 
+					|| abapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*"));
 		}
-		
-		// If its not a declaration we must walk to the end of the word in either cause as it
+
+		// If its not a declaration we must walk to the end of the word in either cause
+		// as it
 		// could either be `lo_app->foo()` or just `foo()` if called internally.
-		
+
 		int c = scanner.read();
 		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
 
@@ -70,7 +79,7 @@ public class AbapFunctionRule implements IRule {
 				c = scanner.read();
 			} while (c != ICharacterScanner.EOF && fDetector.isWordPart((char) c));
 			scanner.unread();
-			
+
 			// call must have parantheses to differentiate from var / type access
 			// declarations do not have the parantheses.
 			String read = fBuffer.toString();
@@ -79,7 +88,7 @@ public class AbapFunctionRule implements IRule {
 				abapScanner.pushToken(fSubroutineToken);
 				return fSubroutineToken;
 			}
-			
+
 			// Not a function call, rewind the scanner
 			for (int i = fBuffer.length() - 1; i >= 0; i--)
 				scanner.unread();
@@ -88,33 +97,32 @@ public class AbapFunctionRule implements IRule {
 		scanner.unread();
 		return Token.UNDEFINED;
 	}
-	
-	
+
 	private boolean checkIsMultiDeclaration(ICharacterScanner scanner) {
-		
-		if (!((AbapScanner)scanner).hasToken("methods")) {
+
+		if (!((AbapScanner) scanner).hasToken("methods")) {
 			return false;
 		}
-		
+
 		StringBuilder buffer = new StringBuilder();
 		int c = scanner.read();
 		int times_read = 1;
-		
+
 		boolean ret = false;
-		
+
 		// Mutli declared method with no parameters terminating the methods statement
 		// or initiating another one.
-		if (c == '.' || c == ',') { 
+		if (c == '.' || c == ',') {
 			scanner.unread();
-			return true; 
+			return true;
 		}
-		
+
 		// If the following character is a whitespace or a newline, make sure to skip it
 		while (Character.isWhitespace(c) || c == '\n') {
 			c = scanner.read();
 			times_read++;
 		}
-		
+
 		// Read the term that follows and check if belongs to a function signature
 		if (Character.isLetter(c)) {
 			do {
@@ -123,11 +131,10 @@ public class AbapFunctionRule implements IRule {
 				times_read++;
 			} while (c != ICharacterScanner.EOF && Character.isLetter(c));
 
-			
 			String kw = buffer.toString();
 			ret = fSignatureInitiators.contains(kw);
 		}
-		
+
 		// Unread the word since we dont want to tokenize it
 		for (int i = 0; i < times_read; i++) {
 			scanner.unread();
@@ -136,13 +143,14 @@ public class AbapFunctionRule implements IRule {
 	}
 
 	private static String[] fCallDelimiters = new String[] { ":", "," };
-	private static String[] fCallOperators = new String[] { "->", "=>" };
-	private static String[] fCallDeclarations = new String[] { "methods", "method", "class-methods"};
-	
-	private static Set<String> fSignatureInitiators = Set.of( "importing", "returning", "raising", "changing", "exporting" );
-	
+	private static String[] fTypeInitiators = new String[] { "new", "value", "conv" };
+	private static String[] fCallDeclarations = new String[] { "methods", "method", "class-methods" };
+
+	private static Set<String> fSignatureInitiators = Set.of("importing", "returning", "raising", "changing",
+			"exporting");
+
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
-	
+
 	private AbapToken fSubroutineToken = new AbapToken(SUBROUTINE_COLOR, TokenType.FUNCTION_CALL);
 
 	private IWordDetector fDetector = new FunctionDetector();
