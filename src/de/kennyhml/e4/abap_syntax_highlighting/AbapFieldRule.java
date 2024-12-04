@@ -34,7 +34,7 @@ public class AbapFieldRule implements IRule {
 		 * or
 		 * table~field
 		 * 
-		 * Check if the previous token is part of a table key definition, for example
+		 * Or if the previous token is part of a table key definition, for example
 		 * 
 		 * ... key connid.
 		 * Or if its predecessor was part of a table key definition, for example
@@ -43,7 +43,8 @@ public class AbapFieldRule implements IRule {
 		 */
 		if (!abapScanner.tokenMatchesAny(0, TokenType.OPERATOR, fFieldInitiators) 
 				&& !abapScanner.tokenMatches(0, TokenType.KEYWORD, "key") 
-				&& !abapScanner.tokenMatches(0, TokenType.FIELD, "*"))  {
+				&& !(abapScanner.tokenMatches(0, TokenType.FIELD, "*") 
+						&& abapScanner.hasToken("key")) )  {
 			return Token.UNDEFINED;
 		}
 	
