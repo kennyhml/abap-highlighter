@@ -16,6 +16,9 @@ public class AbapStringRule implements IRule {
 		int c = scanner.read();
 
 		if (c != ICharacterScanner.EOF && (isStringStart((char) c) || previousTokenWasEmbeddedVariable(abapScanner))) {
+			if (isStringStart((char)c)) {
+				startCharacter = (char)c;
+			}
 
 			// Consider a string like |{ iv_value }|. For the parser it looks like both a start and
 			// a continuation when in reality we should be terminating the string here.
@@ -32,7 +35,7 @@ public class AbapStringRule implements IRule {
 					previousChar = (char) c;
 				}
 				c = scanner.read();
-			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c));
+			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c, startCharacter));
 			if (c != '\'' && c != '|') {
 				scanner.unread();
 			} else {
@@ -52,8 +55,8 @@ public class AbapStringRule implements IRule {
 		return c == '|' || c == '\'';
 	}
 
-	protected boolean isStringEndOrInterrupt(char c) {
-		return c == '\n' || c == '\'' || c == '|' || c == '{';
+	protected boolean isStringEndOrInterrupt(char c, char startWith) {
+		return c == '\n' || c == startWith || c == '{';
 	}
 
 	protected boolean previousTokenWasEmbeddedVariable(AbapScanner scanner) {
@@ -62,7 +65,8 @@ public class AbapStringRule implements IRule {
 
 	protected StringBuilder fBuffer = new StringBuilder();
 	protected char previousChar = ' ';
-
+	protected char startCharacter = 0;
+	
 	private static final Color STRING_COLOR = new Color(224, 122, 0);
 	private AbapToken stringToken = new AbapToken(STRING_COLOR, AbapToken.TokenType.STRING);
 }
