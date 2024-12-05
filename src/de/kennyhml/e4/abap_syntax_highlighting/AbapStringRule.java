@@ -14,28 +14,34 @@ public class AbapStringRule implements IRule {
 	public IToken evaluate(ICharacterScanner scanner) {
 		AbapScanner abapScanner = ((AbapScanner)scanner);
 		int c = scanner.read();
-
-		if (c != ICharacterScanner.EOF && (isStringStart((char) c) || previousTokenWasEmbeddedVariable(abapScanner))) {
-			if (isStringStart((char)c)) {
-				startCharacter = (char)c;
-			}
-
-			// Consider a string like |{ iv_value }|. For the parser it looks like both a start and
-			// a continuation when in reality we should be terminating the string here.
-			if (isStringStart((char)c) && previousTokenWasEmbeddedVariable(abapScanner)) {
+		if (c == ICharacterScanner.EOF) {
+			scanner.unread();
+			return Token.UNDEFINED;
+		}
+		
+		boolean stringStarting = false;
+		boolean stringContinuing = false;
+		
+		if (previousTokenWasEmbeddedVariable(abapScanner)) {
+			if ((char)c == startCharacter) {
+				// Consider a string like |{ iv_value }|. For the parser it looks like both a start and
+				// a continuation when in reality we should be terminating the string here.
 				((AbapToken) stringToken).setAssigned("|");
 				abapScanner.pushToken((AbapToken) stringToken);
 				return stringToken;
 			}
-			
+			stringContinuing = true;
+		} else if (isStringStart((char)c)) {
+			stringStarting = true;
+			startCharacter = (char)c;
+		}
+		
+		if (stringStarting || stringContinuing) {
 			fBuffer.setLength(0);
 			do {
 				fBuffer.append((char) c);
-				if (!Character.isWhitespace(c)) {
-					previousChar = (char) c;
-				}
 				c = scanner.read();
-			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c, startCharacter));
+			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c));
 			if (c != '\'' && c != '|') {
 				scanner.unread();
 			} else {
@@ -55,8 +61,8 @@ public class AbapStringRule implements IRule {
 		return c == '|' || c == '\'';
 	}
 
-	protected boolean isStringEndOrInterrupt(char c, char startWith) {
-		return c == '\n' || c == startWith || c == '{';
+	protected boolean isStringEndOrInterrupt(char c) {
+		return c == '\n' || c == startCharacter || c == '{';
 	}
 
 	protected boolean previousTokenWasEmbeddedVariable(AbapScanner scanner) {
@@ -64,7 +70,6 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected StringBuilder fBuffer = new StringBuilder();
-	protected char previousChar = ' ';
 	protected char startCharacter = 0;
 	
 	private static final Color STRING_COLOR = new Color(224, 122, 0);

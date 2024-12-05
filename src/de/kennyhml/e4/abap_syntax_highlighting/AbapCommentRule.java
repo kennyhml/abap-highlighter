@@ -6,13 +6,16 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
+import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
+
 public class AbapCommentRule implements IRule {
 
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
-
+		if (((AbapScanner)scanner).tokenMatches(0, TokenType.DELIMITER, "}")) {
+			return Token.UNDEFINED;
+		}
 		int c = scanner.read();
-
 		if (c != ICharacterScanner.EOF && ((scanner.getColumn() == 1 && c == '*') || c == '"')) {
 
 			fBuffer.setLength(0);
