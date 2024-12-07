@@ -6,6 +6,8 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
+import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
+
 public class AbapKeywordRule extends AbapWordRule {
 
 	private static class AbapKeywordDetector implements IWordDetector {
@@ -31,9 +33,15 @@ public class AbapKeywordRule extends AbapWordRule {
 	}
 
 	@Override
-	public IToken evaluate(ICharacterScanner scanner) {
+	public IToken evaluate(ICharacterScanner scanner) {		
 		AbapScanner abapScanner = ((AbapScanner) scanner);
 
+		// Prevent mistaking an identifer for a keyword token when it is ambiguous, e.g
+		// class=>create()
+		if (abapScanner.tokenMatches(0, TokenType.OPERATOR, "*")) {
+			return Token.UNDEFINED;
+		}
+		
 		IToken ret = super.evaluate(scanner);
 
 		// Assign the last word we found to the token
@@ -56,7 +64,8 @@ public class AbapKeywordRule extends AbapWordRule {
 			"no-gaps", "condense", "concatenate", "on", "as", "raise", "exception", "constants", "optional", "default",
 			"call", "with", "non-unique", "unique", "key", "occurrences", "replace", "then", "switch", "continue",
 			"message", "corresponding", "sort", "by", "duplicates", "return", "function", "conv", "exceptions",
-			"reference", "preferred", "parameter", "length", "decimals", "empty", "components", "sorted", "hashed" };
+			"reference", "preferred", "parameter", "length", "decimals", "empty", "components", "sorted", "hashed",
+			"seperated", "character", "mode", "respecting", "blanks", "byte"};
 
 	private AbapToken token = new AbapToken(new Color(86, 156, 214), AbapToken.TokenType.KEYWORD);
 }
