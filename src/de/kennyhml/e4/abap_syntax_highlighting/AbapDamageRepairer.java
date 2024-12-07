@@ -46,6 +46,14 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 	
 	@Override
 	public void createPresentation(TextPresentation presentation, ITypedRegion region) {
+		
+		String str;
+		try {
+			str = fDocument.get(region.getOffset(), region.getLength());
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		
 		super.createPresentation(presentation, region);
 	}
 
@@ -57,41 +65,39 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 		return findStatementTerminator(fromOffset, false);
 	}
 	
-	private int findStatementTerminator(int fromOffset, boolean previous) {
+	private int findStatementTerminator(int changeOffset, boolean previous) {
 
 		int currLine;
 		try {
-			currLine = fDocument.getLineOfOffset(fromOffset);
+			currLine = fDocument.getLineOfOffset(changeOffset);
 		} catch (BadLocationException e) {
 			return 0;
 		}
 
 		String currLineString = null;
-		int offset = 0;
+		int lineOffset = 0;
 		int length = 0;
 
 		while (currLine > 0) {
 			try {
-				offset = fDocument.getLineOffset(currLine);
+				lineOffset = fDocument.getLineOffset(currLine);
 				length = fDocument.getLineLength(currLine);
-
-				// Cut off everything before the change for the first line
-				if (!previous && currLineString == null) {
-					length = (offset + length) - fromOffset;
-					offset = fromOffset + 1;
-				}
-				// The line we also made the change in, dont check past the change.
-				else if (previous && fromOffset < offset + length) {
-					length = (fromOffset - offset) - 1;
-				}
-				currLineString = fDocument.get(offset, length);
+				currLineString = fDocument.get(lineOffset, length);
 			} catch (BadLocationException e) {
 				break;
 			}
 
-			int loc = findDotInLine(currLineString);
+			int changePos = changeOffset - lineOffset;
+			int loc = findDotInLine(currLineString, previous ? -1 : changePos, previous ? changePos : -1);
 			if (loc != -1) {
-				return offset + loc;
+				if (!previous) {
+					try {
+						do {
+							loc++;
+						} while (fDocument.getChar(lineOffset + loc) != '\n');
+					} catch (BadLocationException e) { }
+				}
+				return lineOffset + loc;
 			}
 			
 			if (previous) {
@@ -103,7 +109,7 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 		return 0;
 	}
 	
-	private int findDotInLine(String line) {
+	private int findDotInLine(String line, int afterIndex, int beforeIndex) {
 		if (line.startsWith("*")) {
 			return -1;
 		}
@@ -127,7 +133,8 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 
 			// Comments continue for the rest of the line, no point going further
 			if (c == '"') { break; }
-			if (c == '.') { return i; }
+			if (c == '.' && (afterIndex == -1 || i > afterIndex) && (beforeIndex == -1 || i < beforeIndex)) { 
+				return i; }
 		}
 		return -1;
 	}
