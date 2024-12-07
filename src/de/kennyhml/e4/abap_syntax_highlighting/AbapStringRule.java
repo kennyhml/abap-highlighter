@@ -44,7 +44,7 @@ public class AbapStringRule implements IRule {
 				previousChar = (char)c;
 				c = scanner.read();
 			} while (c != ICharacterScanner.EOF && (previousChar == '\\' || !isStringEndOrInterrupt((char) c) ));
-			if (c != '\'' && c != '|') {
+			if (!isStringStart((char)c)) {
 				scanner.unread();
 			} else {
 				fBuffer.append((char)c);
@@ -60,7 +60,7 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected boolean isStringStart(char c) {
-		return c == '|' || c == '\'';
+		return c == '|' || c == '\'' || c == '`';
 	}
 
 	protected boolean isStringEndOrInterrupt(char c) {
