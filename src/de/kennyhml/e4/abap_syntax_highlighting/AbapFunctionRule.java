@@ -143,7 +143,7 @@ public class AbapFunctionRule implements IRule {
 	}
 
 	private static String[] fCallDelimiters = new String[] { ":", "," };
-	private static String[] fTypeInitiators = new String[] { "new", "value", "conv" };
+	private static String[] fTypeInitiators = new String[] { "new", "value", "conv", "data" };
 	private static String[] fCallDeclarations = new String[] { "methods", "method", "class-methods" };
 
 	private static Set<String> fSignatureInitiators = Set.of("importing", "returning", "raising", "changing",
