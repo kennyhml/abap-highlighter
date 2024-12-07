@@ -70,5 +70,5 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 	private AbapToken genericToken = new AbapToken(GENERIC_COLOR, AbapToken.TokenType.IDENTIFIER);
 	private AbapToken typeToken = new AbapToken(TYPE_COLOR, AbapToken.TokenType.IDENTIFIER);
 
-	private static String[] fTypeReferences = new String[] { "type", "raising", "class", "new", "catch", "of", "conv", "value" };
+	private static String[] fTypeReferences = new String[] { "type", "raising", "class", "new", "catch", "of", "conv", "value", "types" };
 }
