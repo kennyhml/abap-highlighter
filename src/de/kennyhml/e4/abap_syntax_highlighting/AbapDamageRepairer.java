@@ -77,7 +77,7 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 
 				// Cut off everything before the change for the first line
 				if (!previous && currLineString == null) {
-					length = fromOffset - offset;
+					length = (offset + length) - fromOffset;
 					offset = fromOffset + 1;
 				}
 				// The line we also made the change in, dont check past the change.
