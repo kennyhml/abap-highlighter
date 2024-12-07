@@ -1,5 +1,9 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
@@ -18,22 +22,20 @@ public class AbapStringRule implements IRule {
 			scanner.unread();
 			return Token.UNDEFINED;
 		}
-		
+		char chr = (char)c;
 		boolean stringStarting = false;
 		boolean stringContinuing = false;
 		
 		if (previousTokenWasEmbeddedVariable(abapScanner)) {
-			if ((char)c == startCharacter) {
-				// Consider a string like |{ iv_value }|. For the parser it looks like both a start and
-				// a continuation when in reality we should be terminating the string here.
-				((AbapToken) stringToken).setAssigned("|");
+			if ((char)c == getLastSymbol()) {
+				((AbapToken) stringToken).setAssigned(Character.toString(symbolStack.removeLast()));
 				abapScanner.pushToken((AbapToken) stringToken);
 				return stringToken;
 			}
 			stringContinuing = true;
 		} else if (isStringStart((char)c)) {
 			stringStarting = true;
-			startCharacter = (char)c;
+			symbolStack.add((char)c);
 		}
 		
 		if (stringStarting || stringContinuing) {
@@ -48,6 +50,7 @@ public class AbapStringRule implements IRule {
 				scanner.unread();
 			} else {
 				fBuffer.append((char)c);
+				symbolStack.removeLast();
 			}
 			
 			((AbapToken) stringToken).setAssigned(fBuffer.toString());
@@ -59,12 +62,22 @@ public class AbapStringRule implements IRule {
 		return Token.UNDEFINED;
 	}
 
+	
+	char getLastSymbol() {
+		try {
+			return symbolStack.getLast();
+		} catch (NoSuchElementException e) {
+			return 0;
+		}
+
+	}
+	
 	protected boolean isStringStart(char c) {
 		return c == '|' || c == '\'' || c == '`';
 	}
 
 	protected boolean isStringEndOrInterrupt(char c) {
-		return c == '\n' || c == startCharacter || c == '{';
+		return c == '\n' || c == symbolStack.getLast() || c == '{';
 	}
 
 	protected boolean previousTokenWasEmbeddedVariable(AbapScanner scanner) {
@@ -72,7 +85,8 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected StringBuilder fBuffer = new StringBuilder();
-	protected char startCharacter = 0;
+	
+	protected List<Character> symbolStack = new ArrayList<>();
 	
 	private static final Color STRING_COLOR = new Color(224, 122, 0);
 	private AbapToken stringToken = new AbapToken(STRING_COLOR, AbapToken.TokenType.STRING);
