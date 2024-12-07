@@ -38,10 +38,12 @@ public class AbapStringRule implements IRule {
 		
 		if (stringStarting || stringContinuing) {
 			fBuffer.setLength(0);
+			char previousChar = 0;
 			do {
 				fBuffer.append((char) c);
+				previousChar = (char)c;
 				c = scanner.read();
-			} while (c != ICharacterScanner.EOF && !isStringEndOrInterrupt((char) c));
+			} while (c != ICharacterScanner.EOF && (previousChar == '\\' || !isStringEndOrInterrupt((char) c) ));
 			if (c != '\'' && c != '|') {
 				scanner.unread();
 			} else {
