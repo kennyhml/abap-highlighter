@@ -2,7 +2,7 @@
 <feature
       id="de.kennyhml.abap.syntax_highlighting"
       label="Enhanced ABAP Syntax Highlighting"
-      version="1.0.1">
+      version="1.0.2">
 
    <description url="https://github.com/kennyhml/Enhanced-ADT-Highlighting/blob/master/README.md">
       An Editor plug-in to provide better syntax highlighting for the ABAP programming language.
@@ -36,6 +36,6 @@ DEALINGS IN THE SOFTWARE.
 
    <plugin
          id="de.kennyhml.e4.abap_syntax_highlighting"
-         version="1.0.1.b"/>
+         version="1.0.2.b"/>
 
 </feature>
