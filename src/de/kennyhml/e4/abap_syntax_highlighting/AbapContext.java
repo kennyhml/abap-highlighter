@@ -1,4 +1,5 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
+
 import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
 
 import java.util.ArrayList;
@@ -10,12 +11,15 @@ import java.util.Set;
  * Stores information about the current context.
  * 
  * @warning The scope of context is limited to any context that may occur within
- * a single statement inside abap. In other words, is is not possible to track,
- * for example, a class context, as it consists of multiple abap statements.
+ *          a single statement inside abap. In other words, is is not possible
+ *          to track, for example, a class context, as it consists of multiple
+ *          abap statements.
  * 
- * A valid context exists between no more than two statement terminators (.).
+ *          A valid context exists between no more than two statement
+ *          terminators (.).
  * 
- * When leaving a context, the clear() method will be called by the document scanner.
+ *          When leaving a context, the clear() method will be called by the
+ *          document scanner.
  */
 public class AbapContext {
 
@@ -33,8 +37,8 @@ public class AbapContext {
 	}
 
 	/**
-	 * Clears the context, i.e resets all tokens and flags to the initial
-	 * values. Should be called after a code block finished repairing.
+	 * Clears the context, i.e resets all tokens and flags to the initial values.
+	 * Should be called after a code block finished repairing.
 	 */
 	public void clear() {
 		fTokens.clear();
@@ -114,8 +118,16 @@ public class AbapContext {
 	 * @return The token at the position or null if the position is invalid.
 	 */
 	public AbapToken getToken(int offsetFromBack) {
+		int offset;
+
+		if (offsetFromBack < 0) {
+			offset = Math.abs(offsetFromBack) - 1;
+		} else {
+			offset = ((fTokens.size() - 1) - offsetFromBack);
+		}
+
 		try {
-			return fTokens.get((fTokens.size() - 1) - offsetFromBack);
+			return fTokens.get(offset);
 		} catch (IndexOutOfBoundsException e) {
 			return null;
 		}
@@ -132,8 +144,8 @@ public class AbapContext {
 	 * Checks if the token at the given offset matches the criteria.
 	 * 
 	 * @param offsetFromBack Offset from the last token (0 is last).
-	 * @param type The type the token should match.
-	 * @param term The term the token string should match or null.
+	 * @param type           The type the token should match.
+	 * @param term           The term the token string should match or null.
 	 * 
 	 * @return Whether the token was matched.
 	 */
@@ -146,7 +158,7 @@ public class AbapContext {
 	 * Checks if the token at the given offset matches the type.
 	 * 
 	 * @param offsetFromBack Offset from the last token (0 is last).
-	 * @param type The type the token should match.
+	 * @param type           The type the token should match.
 	 * 
 	 * @return Whether the token was matched.
 	 */
@@ -181,8 +193,8 @@ public class AbapContext {
 	 * Checks if the token at the given offset matches a given type and any term
 	 * 
 	 * @param offsetFromBack Offset from the last token (0 is last).
-	 * @param type The type the token should match.
-	 * @param terms A set of terms of which any must match the token.
+	 * @param type           The type the token should match.
+	 * @param terms          A set of terms of which any must match the token.
 	 * 
 	 * @return Whether the token was matched.
 	 */
@@ -194,7 +206,7 @@ public class AbapContext {
 	/**
 	 * Checks if the last token matches a given type and any term
 	 * 
-	 * @param type The type the token should match.
+	 * @param type  The type the token should match.
 	 * @param terms A set of terms of which any must match the token.
 	 * 
 	 * @return Whether the token was matched.

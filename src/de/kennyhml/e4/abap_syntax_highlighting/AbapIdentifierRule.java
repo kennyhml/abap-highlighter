@@ -1,5 +1,7 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
 
+import java.util.Set;
+
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -34,15 +36,17 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
 		AbapScanner abapScanner = ((AbapScanner) scanner);
+		AbapContext ctx = abapScanner.getContext();
+		
 		IToken ret = super.evaluate(scanner);
 
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
-			((AbapToken) ret).setAssigned(fLastWord);
+			((AbapToken) ret).setText(fLastWord);
 
 			// Check for case ... type foo=>bar.
-			if (abapScanner.tokenMatches(0, TokenType.OPERATOR, "=>")
-					&& abapScanner.tokenMatches(2, TokenType.KEYWORD, "type")) {
+			if (ctx.lastTokenMatches(TokenType.OPERATOR, "=>")
+					&& ctx.tokenMatches(2, TokenType.KEYWORD, "type")) {
 				ret = typeToken;
 			} else {
 				// Check upcoming static access using =>
@@ -50,16 +54,17 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 
 				// Check if previous token leads to a type, `ref to` are two tokens and need
 				// seperate checking. Only checking `to` would lead to mismatches.
-				if (c == '=' || abapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fTypeReferences)
-						|| abapScanner.tokenMatches(1, TokenType.KEYWORD, "types")
-						|| (abapScanner.tokenMatches(0, TokenType.KEYWORD, "to")
-								&& abapScanner.tokenMatches(1, TokenType.KEYWORD, "ref"))) {
+				if (c == '=' || ctx.tokenMatchesAny(0, TokenType.KEYWORD, fTypeReferences)
+						|| (ctx.tokenMatches(-1, TokenType.KEYWORD, "types") && ctx.tokenMatches(-2, TokenType.DELIMITER, ":"))
+						|| ctx.tokenMatches(1, TokenType.KEYWORD, "types")
+						|| (ctx.tokenMatches(0, TokenType.KEYWORD, "to")
+								&& ctx.tokenMatches(1, TokenType.KEYWORD, "ref"))) {
 					ret = typeToken;
 				}
 				scanner.unread();
 			}
 
-			abapScanner.pushToken((AbapToken) ret);
+			ctx.addToken((AbapToken) ret);
 		}
 		return ret;
 	}
@@ -70,5 +75,5 @@ public class AbapIdentifierRule extends AbapRegexWordRule {
 	private AbapToken genericToken = new AbapToken(GENERIC_COLOR, AbapToken.TokenType.IDENTIFIER);
 	private AbapToken typeToken = new AbapToken(TYPE_COLOR, AbapToken.TokenType.IDENTIFIER);
 
-	private static String[] fTypeReferences = new String[] { "type", "raising", "class", "new", "catch", "of", "conv", "value", "types" };
+	private static Set<String> fTypeReferences = Set.of("type", "raising", "class", "new", "catch", "of", "conv", "value", "types");
 }

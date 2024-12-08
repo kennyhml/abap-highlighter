@@ -36,10 +36,10 @@ public class AbapDelimiterRule extends AbapWordRule {
 
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
-			((AbapToken) ret).setAssigned(fLastWord);
-			((AbapScanner)scanner).pushToken((AbapToken)ret);
+			((AbapToken) ret).setText(fLastWord);
+			((AbapScanner)scanner).getContext().addToken((AbapToken)ret);
 			if (fLastWord.equals(".")) {
-				((AbapScanner)scanner).resetCache();
+				((AbapScanner)scanner).getContext().clear();
 			}
 		}
 		return ret;

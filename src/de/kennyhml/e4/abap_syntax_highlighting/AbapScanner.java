@@ -1,62 +1,116 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
+import org.eclipse.jface.text.rules.IToken;
+import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
-
-import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
 
 public class AbapScanner extends RuleBasedScanner {
 
 	public AbapScanner() {
-
-		setRules(new IRule[] { new AbapNonCharRule(),  new AbapCommentRule(), new AbapStringRule(), new AbapKeywordRule(),
-				new AbapOperatorRule(), new AbapDelimiterRule(), new AbapFunctionRule(), new AbapFieldRule(),
-				new AbapIdentifierRule(), new AbapLiteralRule() });
+		setRules(fRules);
 	}
 
-	public boolean tokenMatches(int offsetFromEnd, TokenType type, String term) {
-		AbapToken token = getPreviousToken(offsetFromEnd);
-		return token != null && token.matches(type, term);
-	}
-
-	public boolean tokenMatchesAny(int offsetFromEnd, TokenType type, String[] terms) {
-		AbapToken token = getPreviousToken(offsetFromEnd);
-		return token != null && token.matchesAny(type, terms);
-	}
-
-	public  AbapToken getPreviousToken() {
-		return getPreviousToken(0);
-
+	/**
+	 * Commits the scanner position advancements that have been made since the 
+	 * last commit, they can no longer be rolled back afterwards.
+	 */
+	public void commit() {
+		fCommittedOffset = fOffset;
 	}
 	
-	public boolean hasToken(String token) {
-		return fPreviousTokenStrings.contains(token);
+	/**
+	 * Rolls the scanner position back to what it was at the time of the previous
+	 * commit.
+	 */
+	public void rollback() {
+		fOffset = fCommittedOffset;
 	}
-
-	public AbapToken getPreviousToken(int offsetFromEnd) {
-		try {
-			return fPreviousTokens.get((fPreviousTokens.size() - 1) - offsetFromEnd);
-		} catch (IndexOutOfBoundsException e) {
-			return null;
+	
+	@Override
+	public int read() {
+		fReadCount++;
+		return super.read();
+	}
+	
+	@Override
+	public IToken nextToken() {
+		IToken ret = super.nextToken();
+		commit();
+		return ret;
+	}
+	
+	@Override
+	public void setRange(IDocument document, int offset, int length) {
+		super.setRange(document, offset, length);
+		fCommittedOffset = offset;
+	}
+	
+	/**
+	 * Gets the context of the scanner, this context may be used by rules in order
+	 * to make highlighting decisions based on what has been scanned previously and
+	 * is available in the context.
+	 * 
+	 * @return The current context of the scanner.
+	 */
+	public AbapContext getContext() {
+		return fContext;
+	}
+	
+	/**
+	 * Reads the next word (if available), the scanner is rewinded back to it's original
+	 * position afterwards. Commit and rollback are not used.
+	 * 
+	 * @return The next word if available.
+	 */
+	public String peekNext(IWordDetector detector) {
+		fReadCount = 0;
+		StringBuilder buffer = new StringBuilder();
+		int c;
+		
+		// Skip whitespaces as needed
+		do {
+			c = read();
+		} while (Character.isWhitespace(c));
+		
+		
+		if (detector.isWordStart((char)c)) {
+			do {
+				buffer.append((char) c);
+				c = read();
+			} while (c != ICharacterScanner.EOF && detector.isWordPart((char) c));
 		}
+		
+		
+		String read = buffer.toString();
+		for (int i = 0; i < fReadCount; i++) {
+			unread();
+		}
+		return read;
 	}
 	
-	public void resetCache() {
-		fPreviousTokens.clear();
-		fPreviousTokenStrings.clear();
-		inStructBlock = false;
+	public String readNext(int c, IWordDetector detector) {
+		StringBuilder buffer = new StringBuilder();		
+		do {
+			buffer.append((char) c);
+			c = read();
+		} while (c != ICharacterScanner.EOF && detector.isWordPart((char)c));
+		unread();
+		return buffer.toString();
 	}
 
-	public void pushToken(AbapToken token) {
-		fPreviousTokens.add(new AbapToken(token));
-		fPreviousTokenStrings.add(token.getLastAssignment());
-	}
+	private AbapContext fContext = new AbapContext();
 
-	public boolean inStructBlock = false;
+	// The order of the rule matters!!!
+	private IRule[] fRules = new IRule[] { new AbapNonCharRule(), new AbapCommentRule(), new AbapStringRule(),
+			new AbapKeywordRule(), new AbapOperatorRule(), new AbapDelimiterRule(), new AbapFunctionRule(),
+			new AbapFieldRule(), new AbapIdentifierRule(), new AbapLiteralRule() };
+
 	
-	private List<AbapToken>  fPreviousTokens = new ArrayList<>();
-	private HashSet<String> fPreviousTokenStrings = new HashSet<String>();
+	private int fCommittedOffset = 0;
+	private int fReadCount = 0;
+	
+	
 }

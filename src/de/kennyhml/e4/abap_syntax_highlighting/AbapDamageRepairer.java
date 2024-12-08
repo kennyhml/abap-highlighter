@@ -37,7 +37,7 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 				System.out.println("Change at " + event.getOffset() + ": Repairing from " + start + " to " + end);
 			});
 			
-			((AbapScanner) fScanner).resetCache();
+			((AbapScanner) fScanner).getContext().clear();
 			return new Region(start, end - start);
 		} catch (Exception e) {
 		}

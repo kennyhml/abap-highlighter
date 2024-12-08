@@ -29,7 +29,9 @@ public class AbapFunctionRule implements IRule {
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {
 		AbapScanner abapScanner = ((AbapScanner) scanner);
-
+		AbapContext ctx = abapScanner.getContext();
+		
+		
 		// Decls are not followed by parantheses, so we dont need to walk to them.
 		boolean isDeclaration = false;
 		boolean mightBeDeclaration = false;
@@ -42,7 +44,7 @@ public class AbapFunctionRule implements IRule {
 		// Inline assignments: 
 		//		data(ls_struct) = value struct_type( field1 = 'X' ... ).
 		// As their token must be a type instead.
-		if (abapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fTypeInitiators)) {
+		if (ctx.lastTokenMatchesAny(TokenType.KEYWORD, fTypeInitiators)) {
 			return Token.UNDEFINED;
 		}
 
@@ -50,19 +52,19 @@ public class AbapFunctionRule implements IRule {
 		// methods foo.
 		// Or for previous `method` keyword (from method, endmethod block), for example:
 		// method foo.
-		if (abapScanner.tokenMatchesAny(0, TokenType.KEYWORD, fCallDeclarations)) {
+		if (ctx.lastTokenMatchesAny(TokenType.KEYWORD, fCallDeclarations)) {
 			isDeclaration = true;
 		}
 		// Check if previous token is `:` or `,` for example:
 		// methods: foo,
 		// bar,
 		// baz.
-		else if (abapScanner.tokenMatchesAny(0, TokenType.DELIMITER, fCallDelimiters)) {
+		else if (ctx.lastTokenMatchesAny(TokenType.DELIMITER, fCallDelimiters)) {
 			mightBeDeclaration = true;
 			// Check if the token before `:` or `,` is a METHODS keyword or a function token
 			// This wont work if the functions defined also have parameters though.
-			isDeclaration |= (abapScanner.tokenMatchesAny(1, TokenType.KEYWORD, fCallDeclarations)
-					|| abapScanner.tokenMatches(1, TokenType.FUNCTION_CALL, "*"));
+			isDeclaration |= (ctx.tokenMatchesAny(1, TokenType.KEYWORD, fCallDeclarations)
+					|| ctx.tokenMatches(1, TokenType.FUNCTION_CALL));
 		}
 
 		// If its not a declaration we must walk to the end of the word in either cause
@@ -84,8 +86,8 @@ public class AbapFunctionRule implements IRule {
 			// declarations do not have the parantheses.
 			String read = fBuffer.toString();
 			if (c == '(' || isDeclaration || (mightBeDeclaration && checkIsMultiDeclaration(scanner))) {
-				fSubroutineToken.setAssigned(read);
-				abapScanner.pushToken(fSubroutineToken);
+				fSubroutineToken.setText(read);
+				ctx.addToken(fSubroutineToken);
 				return fSubroutineToken;
 			}
 
@@ -100,7 +102,7 @@ public class AbapFunctionRule implements IRule {
 
 	private boolean checkIsMultiDeclaration(ICharacterScanner scanner) {
 
-		if (!((AbapScanner) scanner).hasToken("methods")) {
+		if (!((AbapScanner) scanner).getContext().hasWord("methods")) {
 			return false;
 		}
 
@@ -142,9 +144,9 @@ public class AbapFunctionRule implements IRule {
 		return ret;
 	}
 
-	private static String[] fCallDelimiters = new String[] { ":", "," };
-	private static String[] fTypeInitiators = new String[] { "new", "value", "conv", "data" };
-	private static String[] fCallDeclarations = new String[] { "methods", "method", "class-methods" };
+	private static Set<String> fCallDelimiters = Set.of( ":", "," );
+	private static Set<String> fTypeInitiators = Set.of("new", "value", "conv", "data");
+	private static Set<String> fCallDeclarations = Set.of("methods", "method", "class-methods");
 
 	private static Set<String> fSignatureInitiators = Set.of("importing", "returning", "raising", "changing",
 			"exporting");

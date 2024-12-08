@@ -28,8 +28,8 @@ public class AbapStringRule implements IRule {
 		
 		if (previousTokenWasEmbeddedVariable(abapScanner)) {
 			if ((char)c == getLastSymbol()) {
-				((AbapToken) stringToken).setAssigned(Character.toString(symbolStack.removeLast()));
-				abapScanner.pushToken((AbapToken) stringToken);
+				((AbapToken) stringToken).setText(Character.toString(symbolStack.removeLast()));
+				abapScanner.getContext().addToken((AbapToken) stringToken);
 				return stringToken;
 			}
 			stringContinuing = true;
@@ -53,8 +53,8 @@ public class AbapStringRule implements IRule {
 				symbolStack.removeLast();
 			}
 			
-			((AbapToken) stringToken).setAssigned(fBuffer.toString());
-			abapScanner.pushToken((AbapToken) stringToken);
+			((AbapToken) stringToken).setText(fBuffer.toString());
+			abapScanner.getContext().addToken((AbapToken) stringToken);
 			return stringToken;
 		}
 
@@ -81,7 +81,7 @@ public class AbapStringRule implements IRule {
 	}
 
 	protected boolean previousTokenWasEmbeddedVariable(AbapScanner scanner) {
-		return scanner.tokenMatches(0, TokenType.DELIMITER, "}");
+		return scanner.getContext().tokenMatches(0, TokenType.DELIMITER, "}");
 	}
 
 	protected StringBuilder fBuffer = new StringBuilder();

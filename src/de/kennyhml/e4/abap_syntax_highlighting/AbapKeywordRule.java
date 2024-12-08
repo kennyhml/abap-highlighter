@@ -6,6 +6,7 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
+import de.kennyhml.e4.abap_syntax_highlighting.AbapContext.ContextFlag;
 import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
 
 public class AbapKeywordRule extends AbapWordRule {
@@ -35,10 +36,11 @@ public class AbapKeywordRule extends AbapWordRule {
 	@Override
 	public IToken evaluate(ICharacterScanner scanner) {		
 		AbapScanner abapScanner = ((AbapScanner) scanner);
-
+		AbapContext ctx = abapScanner.getContext();
+		
 		// Prevent mistaking an identifer for a keyword token when it is ambiguous, e.g
 		// class=>create()
-		if (abapScanner.tokenMatches(0, TokenType.OPERATOR, "*")) {
+		if (ctx.tokenMatches(0, TokenType.OPERATOR, "*")) {
 			return Token.UNDEFINED;
 		}
 		
@@ -46,8 +48,15 @@ public class AbapKeywordRule extends AbapWordRule {
 
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
-			((AbapToken) ret).setAssigned(fLastWord);
-			abapScanner.pushToken((AbapToken) ret);
+			if (fLastWord.equals("of")) {
+				if (ctx.tokenMatches(0, TokenType.KEYWORD, "begin")) {
+					ctx.activate(ContextFlag.CONTEXT_STRUCT_DECL);
+				} else if (ctx.tokenMatches(0, TokenType.KEYWORD, "end")) {
+					ctx.deactivate(ContextFlag.CONTEXT_STRUCT_DECL);
+				}
+			} 
+			((AbapToken) ret).setText(fLastWord);
+			ctx.addToken((AbapToken) ret);
 		}
 
 		return ret;

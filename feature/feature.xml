@@ -36,6 +36,6 @@ DEALINGS IN THE SOFTWARE.
 
    <plugin
          id="de.kennyhml.e4.abap_syntax_highlighting"
-         version="1.0.2.b"/>
+         version="1.1.2"/>
 
 </feature>

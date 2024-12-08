@@ -39,8 +39,8 @@ public class AbapOperatorRule extends AbapWordRule {
 
 		// Assign the last word we found to the token
 		if (!ret.isUndefined()) {
-			((AbapToken) ret).setAssigned(fLastWord);
-			abapScanner.pushToken((AbapToken)ret);
+			((AbapToken) ret).setText(fLastWord);
+			abapScanner.getContext().addToken((AbapToken)ret);
 		}
 
 		return ret;

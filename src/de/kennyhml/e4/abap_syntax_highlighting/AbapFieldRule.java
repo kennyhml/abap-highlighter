@@ -1,15 +1,16 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
 
+import de.kennyhml.e4.abap_syntax_highlighting.AbapContext.ContextFlag;
 import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
 
-import org.eclipse.jface.text.rules.ICharacterScanner;
-import org.eclipse.jface.text.rules.IRule;
+import java.util.Set;
+
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
-public class AbapFieldRule implements IRule {
+public class AbapFieldRule extends BaseAbapRule {
 
 	private static class FieldDetector implements IWordDetector {
 
@@ -44,76 +45,58 @@ public class AbapFieldRule implements IRule {
 	 * non-unique sorted key secondary_key components connid carrid
 	 * 
 	 */
-	public IToken evaluate(ICharacterScanner scanner) {
-		AbapScanner sc = ((AbapScanner) scanner);
-
-		// Yes we are losing performance splitting up the conditions like this but it is
-		// honestly
-		// negligible and makes it alot less confusing.
-		final boolean fieldAccess = sc.tokenMatchesAny(0, TokenType.OPERATOR, fFieldInitiators);
-		final boolean isTableDef = sc.hasToken("key") || sc.hasToken("components");
-		final boolean keyComponents = isTableDef && (sc.tokenMatchesAny(0, TokenType.KEYWORD, fComponentInitiators)
-				|| sc.tokenMatches(0, TokenType.FIELD, "*"));
-
-		if (!fieldAccess && !keyComponents) {
+	public IToken evaluate(AbapScanner scanner) {
+		AbapContext ctx = scanner.getContext();
+		if (!isAccessingField(ctx) && !isDefiningField(ctx) && !isDefiningKeyComponents(ctx)) {
 			return Token.UNDEFINED;
 		}
 
 		int c = scanner.read();
-		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
-
-			// read the full world or until EOF
-			fBuffer.setLength(0);
-			do {
-				fBuffer.append((char) c);
-				c = scanner.read();
-			} while (c != ICharacterScanner.EOF && fDetector.isWordPart((char) c));
-			scanner.unread();
-			String wordRead = fBuffer.toString();
-			
-			// read the next word, if it is 'components' then what we just scanned
-			// is the alias for the key, not its components.
-			int timesRead = 1;
-			c = scanner.read();
-			while (Character.isWhitespace(c)) {
-				c = scanner.read();
-				timesRead++;
-			}
-			fBuffer.setLength(0);
-			do {
-				fBuffer.append((char) c);
-				c = scanner.read();
-				timesRead++;
-			} while (c != ICharacterScanner.EOF && fDetector.isWordPart((char) c));
-			
-			String secondRead = fBuffer.toString();
-			for (int i = 0; i < timesRead; i++) {
-				scanner.unread();
-			}
-			
-			// Next word is components, rewind the scanner completely.
-			if (secondRead.equals("components")) {
-				((AbapToken) fKeyToken).setAssigned(fBuffer.toString());
-				sc.pushToken((AbapToken) fKeyToken);
-				return fKeyToken;
-			}
-			((AbapToken) fFieldToken).setAssigned(fBuffer.toString());
-			sc.pushToken((AbapToken) fFieldToken);
-			return fFieldToken;
+		if (!fDetector.isWordStart((char) c)) {
+			return Token.UNDEFINED;
 		}
-		scanner.unread();
-		return Token.UNDEFINED;
+
+		// Read the full word, we know it must be a field.
+		String currWord = scanner.readNext(c, fDetector);
+		String nextWord = scanner.peekNext(fDetector);
+
+		// Next word is components, rewind the scanner completely.
+		if (nextWord.equals("components")) {
+			fKeyToken.setText(currWord);
+			ctx.addToken(fKeyToken);
+			return fKeyToken;
+		}
+
+		fFieldToken.setText(currWord);
+		ctx.addToken(fFieldToken);
+		return fFieldToken;
+	}
+
+	private boolean isAccessingField(AbapContext ctx) {
+		return ctx.lastTokenMatchesAny(TokenType.OPERATOR, fFieldInitiators);
+	}
+
+	private boolean isDefiningKeyComponents(AbapContext ctx) {
+		if (!(ctx.hasWord("key") || ctx.hasWord("components"))) {
+			return false;
+		}
+
+		return ctx.lastTokenMatchesAny(TokenType.KEYWORD, fComponentInitiators)
+				|| ctx.lastTokenMatches(TokenType.FIELD);
+	}
+
+	private boolean isDefiningField(AbapContext ctx) {
+		return ctx.active(ContextFlag.CONTEXT_STRUCT_DECL) && ctx.lastTokenMatches(TokenType.DELIMITER, ",");
 	}
 
 	private static final Color FIELD_COLOR = new Color(147, 115, 165);
 	private static final Color KEY_COLOR = new Color(149, 98, 181);
-	
+
 	private AbapToken fFieldToken = new AbapToken(FIELD_COLOR, TokenType.FIELD);
 	private AbapToken fKeyToken = new AbapToken(KEY_COLOR, TokenType.FIELD);
-	
-	private String[] fFieldInitiators = new String[] { "-", "~" };
-	private String[] fComponentInitiators = new String[] { "key", "components" };
+
+	private Set<String> fFieldInitiators = Set.of("-", "~");
+	private Set<String> fComponentInitiators = Set.of("key", "components");
 
 	private IWordDetector fDetector = new FieldDetector();
-	private StringBuilder fBuffer = new StringBuilder();
 }
