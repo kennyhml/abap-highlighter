@@ -47,6 +47,7 @@ public class AbapScanner extends RuleBasedScanner {
 	public void resetCache() {
 		fPreviousTokens.clear();
 		fPreviousTokenStrings.clear();
+		inStructBlock = false;
 	}
 
 	public void pushToken(AbapToken token) {
@@ -54,6 +55,8 @@ public class AbapScanner extends RuleBasedScanner {
 		fPreviousTokenStrings.add(token.getLastAssignment());
 	}
 
+	public boolean inStructBlock = false;
+	
 	private List<AbapToken>  fPreviousTokens = new ArrayList<>();
 	private HashSet<String> fPreviousTokenStrings = new HashSet<String>();
 }
