@@ -5,13 +5,12 @@ import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
 import java.util.Set;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
-import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
-public class AbapFunctionRule implements IRule {
+public class AbapFunctionRule extends BaseAbapRule {
 
 	private static class FunctionDetector implements IWordDetector {
 
@@ -27,9 +26,8 @@ public class AbapFunctionRule implements IRule {
 	}
 
 	@Override
-	public IToken evaluate(ICharacterScanner scanner) {
-		AbapScanner abapScanner = ((AbapScanner) scanner);
-		AbapContext ctx = abapScanner.getContext();
+	public IToken evaluate(AbapScanner scanner) {
+		AbapContext ctx = scanner.getContext();
 		
 		
 		// Decls are not followed by parantheses, so we dont need to walk to them.
@@ -74,35 +72,26 @@ public class AbapFunctionRule implements IRule {
 		int c = scanner.read();
 		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
 
-			// read the full world or until EOF
-			fBuffer.setLength(0);
-			do {
-				fBuffer.append((char) c);
-				c = scanner.read();
-			} while (c != ICharacterScanner.EOF && fDetector.isWordPart((char) c));
-			scanner.unread();
-
+			String text = scanner.readNext(c, fDetector);
+			
 			// call must have parantheses to differentiate from var / type access
 			// declarations do not have the parantheses.
-			String read = fBuffer.toString();
 			if (c == '(' || isDeclaration || (mightBeDeclaration && checkIsMultiDeclaration(scanner))) {
-				fSubroutineToken.setText(read);
+				fSubroutineToken.setText(text);
 				ctx.addToken(fSubroutineToken);
 				return fSubroutineToken;
 			}
-
-			// Not a function call, rewind the scanner
-			for (int i = fBuffer.length() - 1; i >= 0; i--)
-				scanner.unread();
 			return Token.UNDEFINED;
 		}
-		scanner.unread();
 		return Token.UNDEFINED;
 	}
 
-	private boolean checkIsMultiDeclaration(ICharacterScanner scanner) {
-
-		if (!((AbapScanner) scanner).getContext().hasWord("methods")) {
+	private boolean checkIsMultiDeclaration(AbapScanner scanner) {
+		AbapContext ctx = scanner.getContext();
+		
+		// Check that context begins with 'methods:'
+		if (!(ctx.tokenMatches(-1, TokenType.KEYWORD, "methods") 
+				&& ctx.tokenMatches(-2, TokenType.DELIMITER, ":"))) {
 			return false;
 		}
 
@@ -149,7 +138,7 @@ public class AbapFunctionRule implements IRule {
 	private static Set<String> fCallDeclarations = Set.of("methods", "method", "class-methods");
 
 	private static Set<String> fSignatureInitiators = Set.of("importing", "returning", "raising", "changing",
-			"exporting");
+			"exporting", "exceptions");
 
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 
