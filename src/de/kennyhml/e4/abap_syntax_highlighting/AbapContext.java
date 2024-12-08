@@ -79,8 +79,12 @@ public class AbapContext {
 	 * @param token The token (that was just scanned) to append to the context.
 	 */
 	public void addToken(AbapToken token) {
-		fTokens.add(new AbapToken(token)); // COPY the token, we dont want a reference!!
-		fTokenWords.add(token.getText());
+		if (token.matches(TokenType.DELIMITER, ".")) {
+			clear();
+		} else {
+			fTokens.add(new AbapToken(token)); // COPY the token, we dont want a reference!!
+			fTokenWords.add(token.getText());
+		}
 	}
 
 	/**

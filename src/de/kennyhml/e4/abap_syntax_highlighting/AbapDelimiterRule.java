@@ -1,51 +1,32 @@
 package de.kennyhml.e4.abap_syntax_highlighting;
+
+import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
+
 import java.util.Set;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.IWordDetector;
+import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
-public class AbapDelimiterRule extends AbapWordRule {
-
-	private static class AbapDelimiterDetector implements IWordDetector {
-
-		@Override
-		public boolean isWordStart(char c) {
-			return DELIMITERS.contains(c);
-		}
-
-		@Override
-		public boolean isWordPart(char c) {
-			// delimiters cannot be longer than 1 character
-			return false;
-		}
-	}
-
-	public AbapDelimiterRule() {
-		super(new AbapDelimiterDetector());
-
-		for (char op : DELIMITERS) {
-			this.addWord(Character.toString(op), token);
-		}
-	}
+public class AbapDelimiterRule extends BaseAbapRule {
 
 	@Override
-	public IToken evaluate(ICharacterScanner scanner) {
-		IToken ret = super.evaluate(scanner);
+	public IToken evaluate(AbapScanner scanner) {
+		AbapContext ctx = scanner.getContext();
 
-		// Assign the last word we found to the token
-		if (!ret.isUndefined()) {
-			((AbapToken) ret).setText(fLastWord);
-			((AbapScanner)scanner).getContext().addToken((AbapToken)ret);
-			if (fLastWord.equals(".")) {
-				((AbapScanner)scanner).getContext().clear();
-			}
+		int c = scanner.read();
+		if (c != ICharacterScanner.EOF && DELIMITERS.contains((char)c)) {
+			fDelimiterToken.setText(Character.toString(c));
+			ctx.addToken(fDelimiterToken);
+			return fDelimiterToken;
 		}
-		return ret;
+		return Token.UNDEFINED;
 	}
 
-	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']', ':', '.', ',');
+
+	private static final Color DELIMITER_COLOR = new Color(255, 255, 255);
+	private AbapToken fDelimiterToken = new AbapToken(DELIMITER_COLOR, TokenType.DELIMITER);
 	
-	private static AbapToken token = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.DELIMITER);
+	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']', ':', '.', ',');
 }
