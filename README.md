@@ -1,7 +1,7 @@
 # ABAP Highlighter
-Lightweight plug-in for the Eclipse IDE that works with and modifies [ADT](ADT) (Abap Development Tools) to provide better syntax highlighting for the [ABAP](ABAP) programming language.
-It aims to solve the extremely dissatisfactory syntax highlighting that ADT supplies, as they group tokens together that have vastly different meanings. 
-If you've ever programmed ABAP, you either know exactly what I'm referring to or you're blissfully unaware.
+A lightweight plug-in for [Eclipse](eclipse) that works with and modifies the [ADT Plugin](ADT) to provide better syntax highlighting for the [ABAP](ABAP) programming language.
+It aims to address the highly dissatisfactory ADT syntax highlighting, which groups together tokens with vastly different meanings, to make looking at ABAP code slightly
+more bearable.
 
 # Supported Token Types
 - ✔️ Functions / Methods
@@ -34,7 +34,8 @@ scope itself, much less in the active module, the scanner is unable to look up i
 - Add automated testing based on the file mentioned above, resulting token generation must be dumped.
 - Make the colors (easily) customizable, currently hard coded.
 
-Contributions are welcome.
+Contributions are very much welcome :)
   
 [ADT]: https://developers.sap.com/tutorials/abap-install-adt..html
 [ABAP]: https://en.wikipedia.org/wiki/ABAP
+[eclipse]: https://eclipseide.org/
