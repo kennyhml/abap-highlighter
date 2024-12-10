@@ -1,4 +1,4 @@
-# ABAP Visuals
+# ABAP Highlighter
 Lightweight plug-in for the Eclipse IDE that works with and modifies [ADT](ADT) (Abap Development Tools) to provide better syntax highlighting for the [ABAP](ABAP) programming language.
 It aims to solve the extremely dissatisfactory syntax highlighting that ADT supplies, as they group tokens together that have vastly different meanings. 
 If you've ever programmed ABAP, you either know exactly what I'm referring to or you're blissfully unaware.
