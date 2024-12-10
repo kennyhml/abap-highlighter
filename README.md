@@ -1,6 +1,7 @@
 # ABAP Visuals
-Lightweight plug-in for the Eclipse IDE that modifies [ADT](ADT) (Abap Development Tools) to provide better syntax highlighting for the [ABAP](ABAP) programming language.
-It aims to solve the extremely dissatisfactory syntax highlighting that ADT supplies, by grouping tokens together that have vastly different meanings. 
+Lightweight plug-in for the Eclipse IDE that works with and modifies [ADT](ADT) (Abap Development Tools) to provide better syntax highlighting for the [ABAP](ABAP) programming language.
+It aims to solve the extremely dissatisfactory syntax highlighting that ADT supplies, as they group tokens together that have vastly different meanings. 
+If you've ever programmed ABAP, you either know exactly what I'm referring to or you're blissfully unaware.
 
 # Added Highlighting
 - ✔️ Functions / Methods
@@ -17,14 +18,14 @@ It aims to solve the extremely dissatisfactory syntax highlighting that ADT supp
 \* Currently treated as type or identifier, depending on the context. Impossible to derive outside selection without DDIC lookup.
 
 # How does it work?
-The plugin looks for active ADT Editors and obtains, then uninstalls its `PresentationReconciler`, the component that is responsible
-for repairing text changes and (re)creating color tokens based on the text.
+The plugin checks for active ADT Editors and obtains & uninstalls its `PresentationReconciler`, the component that is responsible
+for repairing text changes and (re-)creating color tokens based on the contents.
 
-That way, the plug-in can rely on SAP's ABAP Development Tools for heavy lifting, focusing only on improving the syntax highlighting.
+This way, the plug-in can rely on SAP's ABAP Development Tools for the heavy lifting, focusing only on improving the visual aspect.
 
 As of now, the Syntax Highlighter is entirely text-context-based. It can only derive the meaning of words based on what tokens it has already found
-and occassionally by checking the next few tokens. If the context required to derive the meaning of an identifier is not located in the statement
-scope itself, much less in the active module, the highligher is unable to look up information about it. This this makes it very fast 
+and, occassionally, by checking the next few tokens. If the context required to derive the meaning of an identifier is not located in the statement
+scope itself, much less in the active module, the scanner is unable to look up information about it. This this makes it very fast 
 (most of the content is scanned in O(n) time) but limits its ability to highlight certain tokens correctly.
 
 # Todo:
