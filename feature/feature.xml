@@ -5,7 +5,7 @@
       version="1.0.4">
 
    <description url="https://github.com/kennyhml/Enhanced-ADT-Highlighting/blob/master/README.md">
-      An Editor plug-in to provide better syntax highlighting for the ABAP programming language.
+      A lightweight plug-in that works with and modifies the ADT Plugin to provide better syntax highlighting for the ABAP programming language. It aims to address the highly dissatisfactory ADT syntax highlighting, which groups together tokens with vastly different meanings, to make looking at ABAP code slightly more bearable.
    </description>
 
    <license url="https://github.com/kennyhml/Enhanced-ADT-Highlighting/blob/master/LICENSE">
