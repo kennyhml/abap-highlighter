@@ -1,7 +1,4 @@
-package de.kennyhml.e4.abap_syntax_highlighting;
-
-import de.kennyhml.e4.abap_syntax_highlighting.AbapContext.ContextFlag;
-import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
+package de.kennyhml.e4.abap_highlighter;
 
 import java.util.Set;
 
@@ -9,6 +6,9 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
+
+import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapFieldRule extends BaseAbapRule {
 

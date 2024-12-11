@@ -1,11 +1,11 @@
-package de.kennyhml.e4.abap_syntax_highlighting;
-
-import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
+package de.kennyhml.e4.abap_highlighter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 /**
  * Stores information about the current context.

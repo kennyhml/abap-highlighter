@@ -1,4 +1,4 @@
-package de.kennyhml.e4.abap_syntax_highlighting;
+package de.kennyhml.e4.abap_highlighter;
 
 import java.util.Set;
 
@@ -7,7 +7,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.swt.graphics.Color;
 
-import de.kennyhml.e4.abap_syntax_highlighting.AbapToken.TokenType;
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapIdentifierRule extends AbapRegexWordRule {
 

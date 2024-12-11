@@ -1,4 +1,4 @@
-package de.kennyhml.e4.abap_syntax_highlighting;
+package de.kennyhml.e4.abap_highlighter;
 
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.swt.widgets.Display;
