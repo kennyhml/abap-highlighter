@@ -7,6 +7,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
+import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapDelimiterRule extends BaseAbapRule {
@@ -17,6 +18,14 @@ public class AbapDelimiterRule extends BaseAbapRule {
 
 		int c = scanner.read();
 		if (c != ICharacterScanner.EOF && DELIMITERS.contains((char)c)) {
+			if (c == ':') {
+				if (ctx.lastTokenMatchesAny(TokenType.KEYWORD, Set.of("methods", "class-methods"))) {
+					ctx.activate(ContextFlag.CONTEXT_FUNC_MULTI_DECL);				
+				}
+				else if (ctx.lastTokenMatchesAny(TokenType.KEYWORD, Set.of("data", "class-data"))) {
+					ctx.activate(ContextFlag.CONTEXT_DATA_MULTI_DECL);
+				}
+			}
 			fDelimiterToken.setText(Character.toString(c));
 			ctx.addToken(fDelimiterToken);
 			return fDelimiterToken;

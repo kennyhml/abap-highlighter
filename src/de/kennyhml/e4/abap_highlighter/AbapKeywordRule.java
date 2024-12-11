@@ -1,5 +1,7 @@
 package de.kennyhml.e4.abap_highlighter;
 
+import java.util.Set;
+
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -55,6 +57,12 @@ public class AbapKeywordRule extends AbapWordRule {
 					ctx.deactivate(ContextFlag.CONTEXT_STRUCT_DECL);
 				}
 			} 
+			
+			// This may be multi decl too, that flag will be set by the delimiter rule.
+			if (fLastWord.equals("data") || fLastWord.equals("class-data")) {
+				ctx.activate(ContextFlag.CONTEXT_DATA_DECL);
+			}
+			
 			((AbapToken) ret).setText(fLastWord);
 			ctx.addToken((AbapToken) ret);
 		}

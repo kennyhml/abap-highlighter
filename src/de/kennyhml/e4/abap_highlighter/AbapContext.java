@@ -24,11 +24,13 @@ import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 public class AbapContext {
 
 	public enum ContextFlag {
-		CONTEXT_NONE(0), CONTEXT_STRUCT_DECL(2), // begin of # [..context..] end of #.
+		CONTEXT_NONE(0), 
+		CONTEXT_STRUCT_DECL(2), // begin of # [..context..] end of #.
 		CONTEXT_FUNC_DECL(3), // methods [context].
-		CONTEXT_FUNC_DECLS(4), // methods: [context].
-		CONTEXT_FMT_STRING(5); // | [context] |.
-
+		CONTEXT_FUNC_MULTI_DECL(4), // methods: [context].
+		CONTEXT_FMT_STRING(5), // | [context] |.
+		CONTEXT_DATA_DECL(6), // data [context].
+		CONTEXT_DATA_MULTI_DECL(7); // data: [context]
 		public final int flag;
 
 		ContextFlag(int id) {
