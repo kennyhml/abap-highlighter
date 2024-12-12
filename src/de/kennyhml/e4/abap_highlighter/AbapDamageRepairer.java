@@ -28,6 +28,12 @@ public class AbapDamageRepairer extends DefaultDamagerRepairer {
 			return partition;
 		}
 
+		// Let the default repairer handle copy pasting of text, we only want to deal with
+		// characters changing in our case.
+		if (event.fText.length() > 10) {
+			return super.getDamageRegion(partition, event, documentPartitioningChanged);
+		}
+		
 		try {
 			// The change occurred at this offset
 			int start = findPreviousStatementTerminator(event.getOffset());
