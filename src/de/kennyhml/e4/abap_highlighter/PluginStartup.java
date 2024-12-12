@@ -1,68 +1,95 @@
 package de.kennyhml.e4.abap_highlighter;
 
-import java.util.List;
-
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.presentation.PresentationReconciler;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IPartListener2;
-import org.eclipse.ui.IStartup;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
-
 import com.sap.adt.tools.abapsource.ui.sources.editors.IAbapSourceMultiPageEditor;
 import com.sap.adt.tools.abapsource.ui.sources.editors.IAbapSourcePage;
 
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IStartup;
+import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
+
+
+import org.eclipse.jface.dialogs.IPageChangedListener;
+import org.eclipse.jface.dialogs.PageChangedEvent;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.presentation.IPresentationRepairer;
+import org.eclipse.jface.text.presentation.PresentationReconciler;
+
 public class PluginStartup implements IStartup {
 
-	private PresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
-		PresentationReconciler reconciler = new PresentationReconciler();
+	@Override
+	public void earlyStartup() {
+		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
 
+			IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			for (IEditorReference ref : window.getActivePage().getEditorReferences()) {
+				addPageListener(ref.getPart(false));
+			}
+
+			window.getPartService().addPartListener(partListener);
+		});
+	}
+
+	@SuppressWarnings("restriction")
+	private void addPageListener(IWorkbenchPart part) {
+		if (!(part instanceof IAbapSourceMultiPageEditor)) {
+			return;
+		}
+
+		IAbapSourceMultiPageEditor editor = (IAbapSourceMultiPageEditor) part;
+		editor.addPageChangedListener(pageChangedListener);
+	}
+
+	@SuppressWarnings("restriction")
+	private void modifyReconciler(IAbapSourcePage page) {
+		PresentationReconciler reconciler = page.getExistingPresentationReconciler();
+
+		// We may have already modified this reconcilers repairer
+		IPresentationRepairer rep = reconciler.getRepairer(IDocument.DEFAULT_CONTENT_TYPE);
+		if (rep instanceof AbapDamageRepairer) {
+			return;
+		}
+
+		// Modify the repairer to use our custom damager and repairer instead.
 		AbapDamageRepairer dr = new AbapDamageRepairer(new AbapScanner());
 		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
 		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
-
-		return reconciler;
+		reconciler.install(page.getViewer());
+		page.getViewer().invalidateTextPresentation();
 	}
 
-	private IPartListener2 listener = new IPartListener2() {
+	private IPartListener2 partListener = new IPartListener2() {
 
+		@SuppressWarnings("restriction")
 		@Override
-		public void partActivated(org.eclipse.ui.IWorkbenchPartReference partRef) {
+		public void partActivated(IWorkbenchPartReference partRef) {
+			IWorkbenchPart part = partRef.getPart(false);
 
-			Display.getDefault().asyncExec(() -> {
-				System.out.println("An editor has been opened: " + partRef.getId());
-			});
-
-			if (partRef.getId().startsWith("com.sap.adt.abapClassEditor")) {
-				Display.getDefault().asyncExec(() -> {
-					System.out.println("An abap class editor has been opened: " + partRef.getPartName());
-				});
-
-				IWorkbenchPart part = partRef.getPart(false);
-				if (part instanceof IAbapSourceMultiPageEditor) {
-					IAbapSourceMultiPageEditor editor = (IAbapSourceMultiPageEditor) part;
-					List<IAbapSourcePage> pages = editor.getLoadedPages();
-
-					if (pages.size() > 0) {
-						PresentationReconciler conc = pages.get(0).getExistingPresentationReconciler();
-						
-						AbapDamageRepairer dr = new AbapDamageRepairer(new AbapScanner());
-						conc.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
-						conc.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
-						conc.install(pages.get(0).getViewer());
-					}
+			addPageListener(part);
+			if (part instanceof IAbapSourceMultiPageEditor) {
+				IAbapSourceMultiPageEditor editor = (IAbapSourceMultiPageEditor) part;
+				for (IAbapSourcePage page : editor.getLoadedPages()) {
+					modifyReconciler(page);
 				}
 			}
 
 		};
 	};
 
-	@Override
-	public void earlyStartup() {
-		PlatformUI.getWorkbench().getDisplay().asyncExec(() -> {
-			PlatformUI.getWorkbench().getActiveWorkbenchWindow().getPartService().addPartListener(listener);
-		});
-	}
+	private IPageChangedListener pageChangedListener = new IPageChangedListener() {
+
+		@SuppressWarnings("restriction")
+		@Override
+		public void pageChanged(PageChangedEvent event) {
+			Object genericPage = event.getSelectedPage();
+
+			if (genericPage instanceof IAbapSourcePage) {
+				modifyReconciler((IAbapSourcePage) genericPage);
+			}
+		}
+	};
+
 }
