@@ -47,12 +47,11 @@ public class PluginStartup implements IStartup {
 
 					if (pages.size() > 0) {
 						PresentationReconciler conc = pages.get(0).getExistingPresentationReconciler();
-						conc.uninstall();
-
-						ISourceViewer viewer = pages.get(0).getViewer();
-						PresentationReconciler recon = getPresentationReconciler(viewer);
-						recon.install(viewer);
-						viewer.invalidateTextPresentation();
+						
+						AbapDamageRepairer dr = new AbapDamageRepairer(new AbapScanner());
+						conc.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
+						conc.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+						conc.install(pages.get(0).getViewer());
 					}
 				}
 			}
