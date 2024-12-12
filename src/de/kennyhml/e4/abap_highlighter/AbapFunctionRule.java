@@ -63,6 +63,15 @@ public class AbapFunctionRule extends BaseAbapRule {
 				&& !ctx.active(ContextFlag.CONTEXT_DATA_MULTI_DECL);
 	}
 
+	/**
+	 * Checks if the current token is a function declaration based on the previous
+	 * context. If the context is in a multi function declaration, it will
+	 * scan the upcoming characters to check for a function signature.
+	 * 
+	 * @param scanner The scanner needed to perform scans for a multi declaration possibility.
+	 * 
+	 * @return Whether the token is a function declaration.
+	 */
 	private boolean isFunctionDeclaration(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 		
@@ -78,15 +87,30 @@ public class AbapFunctionRule extends BaseAbapRule {
 	}
 	
 	
+	/**
+	 * Scans for a paranthesis opening to indicate that the token is being
+	 * called, there are other situations where this may happen (e.g buffer size,
+	 * type conversions..) which are filtered out beforehand.
+	 * 
+	 * @param scanner The scanner used to check for the call.
+	 * 
+	 * @return Whether a call is found.
+	 */
 	private boolean scanForCall(AbapScanner scanner) {
 		int c = scanner.read();
 		scanner.unread();
 		return c == '(';
 	}
 
+	/**
+	 * Scans ahead of the current word to check if the token is a function
+	 * declaration that is part of a multi function declaration construct.
+	 * 
+	 * @param scanner The scanner used to perform the check, the offset is restored.
+	 * 
+	 * @return Whether the token is a function declaration of a multi declaration.
+	 */
 	private boolean checkIsMultiDeclaration(AbapScanner scanner) {
-		AbapContext ctx = scanner.getContext();
-
 		StringBuilder buffer = new StringBuilder();
 		int c = scanner.read();
 		int times_read = 1;
@@ -125,13 +149,11 @@ public class AbapFunctionRule extends BaseAbapRule {
 		return ret;
 	}
 
-	private static Set<String> fCallDelimiters = Set.of(":", ",");
 	private static Set<String> fCallDeclarations = Set.of("methods", "method", "class-methods");
-
 	private static Set<String> fSignatureInitiators = Set.of("importing", "returning", "raising", "changing",
 			"exporting", "exceptions");
 
-	private static final Set<String> fForbiddenContext = Set.of("new", "conv", "value", "cond", "data");
+	private static final Set<String> fForbiddenContext = Set.of("new", "conv", "value", "cond", "data", "type", "raising");
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 

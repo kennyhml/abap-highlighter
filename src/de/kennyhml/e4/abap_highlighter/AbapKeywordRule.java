@@ -74,7 +74,7 @@ public class AbapKeywordRule extends AbapWordRule {
 			"endmethod", "methods", "type", "types", "implementation", "definition", "data", "table", "of", "public",
 			"private", "protected", "section", "begin", "end", "final", "create", "is", "not", "initial", "and", "or",
 			"importing", "exporting", "changing", "returning value", "raising", "receiving", "line", "range", "loop",
-			"at", "endloop", "endwhile", "append", "to", "modify", "from", "select", "into", "for", "all", "entries",
+			"at", "endloop", "endwhile", "append", "appending", "fields", "to", "modify", "from", "select", "into", "for", "all", "entries",
 			"in", "where", "single", "value", "standard", "ref", "when", "write", "inheriting", "returning",
 			"class-methods", "class-data", "case", "others", "abstract", "assigning", "field-symbol", "new", "try",
 			"catch", "endtry", "join", "inner", "outer", "left", " right", "like", "update", "set", "delete", "modify",
