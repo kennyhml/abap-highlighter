@@ -1,52 +1,35 @@
 package de.kennyhml.e4.abap_highlighter;
+
 import java.util.Set;
 
-import org.eclipse.jface.text.TextAttribute;
-import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IToken;
-import org.eclipse.jface.text.rules.IWordDetector;
+import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
-public class AbapOperatorRule extends AbapWordRule {
-
-	private static class AbapOperatorDetector implements IWordDetector {
-
-		@Override
-		public boolean isWordStart(char c) {
-			return VALID_CHARS.contains(c);
-		}
-
-		@Override
-		public boolean isWordPart(char c) {
-			return VALID_CHARS.contains(c);
-		}
-
-		static final Set<Character> VALID_CHARS = Set.of('=', '>', '<', '+', '-', '~');
-	}
-
-	public AbapOperatorRule() {
-		super(new AbapOperatorDetector());
-
-		for (String op : OPERATORS) {
-			this.addWord(op, token);
-		}
-	}
+public class AbapOperatorRule extends BaseAbapRule {
 
 	@Override
-	public IToken evaluate(ICharacterScanner scanner) {
-		AbapScanner abapScanner = ((AbapScanner)scanner);
-		IToken ret = super.evaluate(scanner);
-
-		// Assign the last word we found to the token
-		if (!ret.isUndefined()) {
-			((AbapToken) ret).setText(fLastWord);
-			abapScanner.getContext().addToken((AbapToken)ret);
+	public IToken evaluate(AbapScanner scanner) {
+		int c = scanner.read();
+		if (c == AbapScanner.EOF || !fOperators.contains((char)c)) {
+			return Token.UNDEFINED;
 		}
-
-		return ret;
+		
+		// The '/' symbol is technically valid in identifier contexts, but may also be used
+		// for operator context during division or newlines on writing, in which case it should
+		// have a whitespace coming up after it.
+		if (c == '/') {
+			if (!Character.isWhitespace(scanner.read())) {
+				return Token.UNDEFINED;
+			}
+			scanner.unread();
+		}
+		
+		fOperatorToken.setText(Character.toString(c));
+		scanner.getContext().addToken(fOperatorToken);
+		return fOperatorToken;
 	}
 
-	private static final String[] OPERATORS = { "=>", "->", "-", "+", "-", "=", "~" };
-
-	private static AbapToken token = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.OPERATOR);
+	private static final Set<Character> fOperators = Set.of('=', '>', '<', '+', '-', '~', '/');
+	private static AbapToken fOperatorToken = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.OPERATOR);
 }
