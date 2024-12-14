@@ -88,7 +88,7 @@ public class AbapScanner extends RuleBasedScanner {
 		for (int i = 0; i < fReadCount; i++) {
 			unread();
 		}
-		return read;
+		return read.toLowerCase();
 	}
 	
 	public String readNext(int c, IWordDetector detector) {
@@ -98,7 +98,7 @@ public class AbapScanner extends RuleBasedScanner {
 			c = read();
 		} while (c != ICharacterScanner.EOF && detector.isWordPart((char)c));
 		unread();
-		return buffer.toString();
+		return buffer.toString().toLowerCase();
 	}
 
 	private AbapContext fContext = new AbapContext();
