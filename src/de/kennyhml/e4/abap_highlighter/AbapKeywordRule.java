@@ -59,7 +59,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			// This may be multi declaration too, that flag will be set by the delimiter rule.
 			ctx.activate(ContextFlag.CONTEXT_DATA_DECL);
 		}
-		else if (text.equals("methods")) {
+		else if (fFuncContextActivators.contains(text)) {
 			// Could also be multi decl
 			ctx.activate(ContextFlag.CONTEXT_FUNC_DECL);
 		}
@@ -70,7 +70,8 @@ public class AbapKeywordRule extends BaseAbapRule {
 	}
 
 	private static final Set<String> fDataContextActivators = Set.of("data", "class-data", "parameters");
-	
+	private static final Set<String> fFuncContextActivators = Set.of("methods", "class-methods");
+
 	private static final Set<String> fKeywords = Set.of("if", "else", "elseif", "endif", "class", "endclass", "method",
 			"endmethod", "methods", "type", "types", "implementation", "definition", "data", "table", "of", "public",
 			"private", "protected", "section", "begin", "end", "final", "create", "is", "not", "initial", "and", "or",
