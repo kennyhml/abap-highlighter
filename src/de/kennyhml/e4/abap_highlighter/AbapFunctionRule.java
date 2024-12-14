@@ -154,7 +154,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 			"exporting", "exceptions");
 
 	private static final Set<String> fForbiddenContext = 
-			Set.of("new", "conv", "value", "cond", "type", "raising", "corresponding");
+			Set.of("new", "conv", "value", "cond", "type", "raising", "corresponding", "message", "data", "parameters");
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 
