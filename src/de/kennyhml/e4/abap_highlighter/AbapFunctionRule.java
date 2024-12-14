@@ -153,7 +153,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 	private static Set<String> fSignatureInitiators = Set.of("importing", "returning", "raising", "changing",
 			"exporting", "exceptions");
 
-	private static final Set<String> fForbiddenContext = Set.of("new", "conv", "value", "cond", "data", "type", "raising");
+	private static final Set<String> fForbiddenContext = Set.of("new", "conv", "value", "cond", "data", "type", "raising", "corresponding");
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 
