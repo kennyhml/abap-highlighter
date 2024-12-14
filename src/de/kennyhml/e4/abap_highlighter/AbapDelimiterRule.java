@@ -17,25 +17,24 @@ public class AbapDelimiterRule extends BaseAbapRule {
 		AbapContext ctx = scanner.getContext();
 
 		int c = scanner.read();
-		if (c != ICharacterScanner.EOF && DELIMITERS.contains((char)c)) {
-			if (c == ':') {
-				if (ctx.lastTokenMatchesAny(TokenType.KEYWORD, Set.of("methods", "class-methods"))) {
-					ctx.activate(ContextFlag.CONTEXT_FUNC_MULTI_DECL);				
-				}
-				else if (ctx.lastTokenMatchesAny(TokenType.KEYWORD, Set.of("data", "class-data"))) {
-					ctx.activate(ContextFlag.CONTEXT_DATA_MULTI_DECL);
-				}
-			}
-			fDelimiterToken.setText(Character.toString(c));
-			ctx.addToken(fDelimiterToken);
-			return fDelimiterToken;
+		if (c == ICharacterScanner.EOF || !DELIMITERS.contains((char) c)) {
+			return Token.UNDEFINED;
 		}
-		return Token.UNDEFINED;
-	}
 
+		if (c == ':' && ctx.lastTokenMatches(TokenType.KEYWORD)) {
+			if (ctx.active(ContextFlag.CONTEXT_FUNC_DECL)) {
+				ctx.activate(ContextFlag.CONTEXT_FUNC_MULTI_DECL);
+			} else if (ctx.active(ContextFlag.CONTEXT_DATA_DECL)) {
+				ctx.activate(ContextFlag.CONTEXT_DATA_MULTI_DECL);
+			}
+		}
+		fDelimiterToken.setText(Character.toString(c));
+		ctx.addToken(fDelimiterToken);
+		return fDelimiterToken;
+	}
 
 	private static final Color DELIMITER_COLOR = new Color(255, 255, 255);
 	private AbapToken fDelimiterToken = new AbapToken(DELIMITER_COLOR, TokenType.DELIMITER);
-	
+
 	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']', ':', '.', ',');
 }

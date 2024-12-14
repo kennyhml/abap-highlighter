@@ -138,7 +138,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 				times_read++;
 			} while (c != ICharacterScanner.EOF && Character.isLetter(c));
 
-			String kw = buffer.toString();
+			String kw = buffer.toString().toLowerCase();
 			ret = fSignatureInitiators.contains(kw);
 		}
 
@@ -153,12 +153,12 @@ public class AbapFunctionRule extends BaseAbapRule {
 	private static Set<String> fSignatureInitiators = Set.of("importing", "returning", "raising", "changing",
 			"exporting", "exceptions");
 
-	private static final Set<String> fForbiddenContext = Set.of("new", "conv", "value", "cond", "data", "type", "raising", "corresponding");
+	private static final Set<String> fForbiddenContext = 
+			Set.of("new", "conv", "value", "cond", "type", "raising", "corresponding");
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 
 	private AbapToken fSubroutineToken = new AbapToken(SUBROUTINE_COLOR, TokenType.FUNCTION_CALL);
 
 	private IWordDetector fDetector = new FunctionDetector();
-	private StringBuilder fBuffer = new StringBuilder();
 }
