@@ -106,7 +106,7 @@ public class AbapScanner extends RuleBasedScanner {
 	// The order of the rule matters!!!
 	private IRule[] fRules = new IRule[] { new AbapNonCharRule(), new AbapCommentRule(), new AbapStringRule(),
 			new AbapKeywordRule(), new AbapOperatorRule(), new AbapDelimiterRule(), new AbapFunctionRule(),
-			new AbapFieldRule(), new AbapIdentifierRule(), new AbapLiteralRule() };
+			new AbapFieldRule(), new AbapIdentifierRule(), new AbapIntegerRule() };
 
 	
 	private int fCommittedOffset = 0;
