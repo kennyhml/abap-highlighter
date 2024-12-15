@@ -123,5 +123,5 @@ public class AbapIdentifierRule extends BaseAbapRule {
 	private static final Color TYPE_COLOR = new Color(78, 201, 176);
 
 	private static final Set<String> fTypeKeywords = 
-			Set.of("type", "raising", "class", "new", "catch", "of", "conv", "value", "types", "cond", "corresponding");
+			Set.of("type", "raising", "class", "new", "catch", "of", "conv", "value", "types", "cond", "corresponding", "reduce");
 }

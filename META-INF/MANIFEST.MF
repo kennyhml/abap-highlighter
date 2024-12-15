@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ABAP Highlighter
 Bundle-SymbolicName: de.kennyhml.e4.abap_highlighter;singleton:=true
-Bundle-Version: 1.9.9
+Bundle-Version: 1.10.9
 Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text;bundle-version="3.25.200",
  org.eclipse.core.runtime;bundle-version="3.31.100",
