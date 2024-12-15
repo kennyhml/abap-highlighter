@@ -1,8 +1,10 @@
 package de.kennyhml.e4.abap_highlighter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
@@ -24,13 +26,13 @@ import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 public class AbapContext {
 
 	public enum ContextFlag {
-		CONTEXT_NONE(0), 
-		CONTEXT_STRUCT_DECL(2), // begin of # [..context..] end of #.
+		CONTEXT_NONE(0), CONTEXT_STRUCT_DECL(2), // begin of # [..context..] end of #.
 		CONTEXT_FUNC_DECL(3), // methods [context].
 		CONTEXT_FUNC_MULTI_DECL(4), // methods: [context].
 		CONTEXT_FMT_STRING(5), // | [context] |.
 		CONTEXT_DATA_DECL(6), // data [context].
 		CONTEXT_DATA_MULTI_DECL(7); // data: [context]
+
 		public final int flag;
 
 		ContextFlag(int id) {
@@ -46,6 +48,27 @@ public class AbapContext {
 		fTokens.clear();
 		fTokenWords.clear();
 		fCtxFlags = 0;
+		fParensStack = 0;
+	}
+
+	/**
+	 * Pushes a bracket onto the bracket stack of the current context.
+	 * All bracket types (), {] and [] use the same stack for color distinction.
+	 *  
+	 * @return The stack value before pushing the bracket onto it.
+	 */
+	public int pushBracket() {
+		return fParensStack++;
+	}
+
+	/**
+	 * Pushes a bracket onto the bracket stack of the current context.
+	 * All bracket types (), {] and [] use the same stack for color distinction.
+	 *  
+	 * @return The stack value after popping the bracket from it.
+	 */
+	public int popBracket() {
+		return --fParensStack;
 	}
 
 	/**
@@ -224,4 +247,5 @@ public class AbapContext {
 	private List<AbapToken> fTokens = new ArrayList<>();
 	private Set<String> fTokenWords = new HashSet<String>();
 	private int fCtxFlags = 0;
+	private int fParensStack = 0;
 }

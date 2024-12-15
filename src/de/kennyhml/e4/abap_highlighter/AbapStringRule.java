@@ -10,6 +10,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
+import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapStringRule implements IRule {
@@ -30,12 +31,16 @@ public class AbapStringRule implements IRule {
 			if ((char)c == getLastSymbol()) {
 				((AbapToken) stringToken).setText(Character.toString(symbolStack.removeLast()));
 				abapScanner.getContext().addToken((AbapToken) stringToken);
+				abapScanner.getContext().deactivate(ContextFlag.CONTEXT_FMT_STRING);
 				return stringToken;
 			}
 			stringContinuing = true;
 		} else if (isStringStart((char)c)) {
 			stringStarting = true;
 			symbolStack.add((char)c);
+			if (c == '|') {
+				abapScanner.getContext().activate(ContextFlag.CONTEXT_FMT_STRING);
+			}
 		}
 		
 		if (stringStarting || stringContinuing) {
@@ -88,6 +93,6 @@ public class AbapStringRule implements IRule {
 	
 	protected List<Character> symbolStack = new ArrayList<>();
 	
-	private static final Color STRING_COLOR = new Color(224, 122, 0);
+	private static final Color STRING_COLOR = new Color(206,145,120);
 	private AbapToken stringToken = new AbapToken(STRING_COLOR, AbapToken.TokenType.STRING);
 }
