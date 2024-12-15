@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/de.kennyhml.e4.abap_highlighter_1.0.7.jar" id="de.kennyhml.e4.abap_highlighter" version="1.0.7">
+   <feature url="features/de.kennyhml.e4.abap_highlighter_1.0.8.jar" id="de.kennyhml.e4.abap_highlighter" version="1.0.8">
       <category name="de.kennyhml.e4.abap"/>
    </feature>
    <category-def name="de.kennyhml.e4.abap" label="ABAP">
