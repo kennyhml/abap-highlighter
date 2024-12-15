@@ -41,6 +41,7 @@ public class AbapDelimiterRule extends BaseAbapRule {
 		if (stack == -1) {
 			fDelimiterToken.setData(new TextAttribute(NO_COLOR));
 		} else {
+			// Set the color based on the current bracket stack
 			fDelimiterToken.setData(new TextAttribute(fColors[stack % fColors.length]));
 		}
 

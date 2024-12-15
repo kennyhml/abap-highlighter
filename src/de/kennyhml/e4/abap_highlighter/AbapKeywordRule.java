@@ -86,7 +86,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			"seperated", "character", "mode", "respecting", "blanks", "byte", "include", "initialization",
 			"start-of-selection", "report", "selection-screen", "parameters", "lower", "obligatory", "select-options",
 			"block", "frame", "title", "intervals", "no", "starting", "visible", "checkbox", "user-command",
-			"radiobutton", "group", "listbox", "modif", "id", "screen", "seperated", "split", "cond", "reduce", "init",
+			"radiobutton", "group", "listbox", "modif", "id", "screen", "split", "cond", "reduce", "init",
 			"next", "move-corresponding", "supplied", "insert", "authority-check", "object", "field", "clear", "do", "enddo",
 			"eq", "ne", "lt", "gt", "le", "ge", "co", "cn", "ca", "na", "cs", "ns", "cp", "np", "me", "endcase", "assign",
 			"field-symbols", "base", "check");
