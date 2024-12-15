@@ -24,7 +24,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			return !fKeywordTerminators.contains((char)c);
 		}
 		
-		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\r', '\n', '.', '(', ':');
+		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\r', '\n', '.', '(', ':', '>');
 	}
 
 	@Override
@@ -45,6 +45,14 @@ public class AbapKeywordRule extends BaseAbapRule {
 		// Remember that we dont need to manually unread the word because the
 		// scanner will rollback the advanced characters if the token is undefined!
 		String text = scanner.readNext(c, fDetector);
+		
+		// Special case for handling 'me' keyword as the dash is part of alot of
+		// other keywords and cannot simply be filtered out.
+		if (text.equals("me-")) {
+			scanner.unread();
+			text = text.substring(0, 2); 
+		}
+		
 		if (!fKeywords.contains(text)) {
 			return Token.UNDEFINED;
 		}
@@ -89,7 +97,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			"radiobutton", "group", "listbox", "modif", "id", "screen", "split", "cond", "reduce", "init",
 			"next", "move-corresponding", "supplied", "insert", "authority-check", "object", "field", "clear", "do", "enddo",
 			"eq", "ne", "lt", "gt", "le", "ge", "co", "cn", "ca", "na", "cs", "ns", "cp", "np", "me", "endcase", "assign",
-			"field-symbols", "base", "check");
+			"field-symbols", "base", "check", "get", "time", "stamp");
 
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
