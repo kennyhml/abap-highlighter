@@ -24,7 +24,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			return !fKeywordTerminators.contains((char)c);
 		}
 		
-		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\n', '.', '(', ':');
+		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\r', '\n', '.', '(', ':');
 	}
 
 	@Override
