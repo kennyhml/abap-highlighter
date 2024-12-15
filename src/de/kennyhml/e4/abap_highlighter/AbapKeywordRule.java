@@ -33,7 +33,8 @@ public class AbapKeywordRule extends BaseAbapRule {
 
 		// Prevent mistaking an identifer for a keyword token when it is ambiguous, e.g
 		// class=>create()
-		if (ctx.tokenMatches(0, TokenType.OPERATOR)) {
+		if (ctx.lastTokenMatches(TokenType.OPERATOR, ">") 
+				&& ctx.tokenMatchesAny(1, TokenType.OPERATOR, Set.of("=", "-"))) {
 			return Token.UNDEFINED;
 		}
 
@@ -91,13 +92,14 @@ public class AbapKeywordRule extends BaseAbapRule {
 			"call", "with", "non-unique", "unique", "key", "occurrences", "replace", "then", "switch", "continue",
 			"message", "corresponding", "sort", "by", "duplicates", "return", "function", "conv", "exceptions",
 			"reference", "preferred", "parameter", "length", "decimals", "empty", "components", "sorted", "hashed",
-			"seperated", "character", "mode", "respecting", "blanks", "byte", "include", "initialization",
+			"separated", "character", "mode", "respecting", "blanks", "byte", "include", "initialization",
 			"start-of-selection", "report", "selection-screen", "parameters", "lower", "obligatory", "select-options",
 			"block", "frame", "title", "intervals", "no", "starting", "visible", "checkbox", "user-command",
 			"radiobutton", "group", "listbox", "modif", "id", "screen", "split", "cond", "reduce", "init",
 			"next", "move-corresponding", "supplied", "insert", "authority-check", "object", "field", "clear", "do", "enddo",
 			"eq", "ne", "lt", "gt", "le", "ge", "co", "cn", "ca", "na", "cs", "ns", "cp", "np", "me", "endcase", "assign",
-			"field-symbols", "base", "check", "get", "time", "stamp");
+			"field-symbols", "base", "check", "get", "time", "stamp", "commit", "work", "search", "assigned", "exit", "move",
+			"read", "transporting", "convert", "date", "zone", "times");
 
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
