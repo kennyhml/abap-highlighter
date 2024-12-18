@@ -99,7 +99,9 @@ public class AbapKeywordRule extends BaseAbapRule {
 			"next", "move-corresponding", "supplied", "insert", "authority-check", "object", "field", "clear", "do", "enddo",
 			"eq", "ne", "lt", "gt", "le", "ge", "co", "cn", "ca", "na", "cs", "ns", "cp", "np", "me", "endcase", "assign",
 			"field-symbols", "base", "check", "get", "time", "stamp", "commit", "work", "search", "assigned", "exit", "move",
-			"read", "transporting", "convert", "date", "zone", "times");
+			"read", "transporting", "convert", "date", "zone", "times", "bypassing", "buffer", "component", "distinct",
+			"requested", "testing", "duration", "short", "risk", "level", "harmless", "local", "global", "friends", 
+			"interfaces", "renaming", "suffix", "structure", "resumable", "read-only", "interface", "endinterface");
 
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
