@@ -1,5 +1,8 @@
 package de.kennyhml.e4.abap_highlighter;
 
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+
 import java.util.Set;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
@@ -7,9 +10,6 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
-
-import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
-import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapFunctionRule extends BaseAbapRule {
 
@@ -60,7 +60,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 	 */
 	private boolean functionAllowedInContext(AbapContext ctx) {
 		return !ctx.lastTokenMatchesAny(TokenType.KEYWORD, fForbiddenContext) 
-				&& !ctx.active(ContextFlag.CONTEXT_DATA_MULTI_DECL);
+				&& !ctx.active(ContextFlag.DATA_MULTI_DECL);
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 			return true;
 		}
 		
-		if (!ctx.active(ContextFlag.CONTEXT_FUNC_MULTI_DECL)) {
+		if (!ctx.active(ContextFlag.FN_MULTI_DECL)) {
 			return false;
 		}
 		

@@ -1,5 +1,8 @@
 package de.kennyhml.e4.abap_highlighter;
 
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+
 import java.util.Set;
 
 import org.eclipse.jface.text.TextAttribute;
@@ -8,8 +11,6 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
-import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
-import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapDelimiterRule extends BaseAbapRule {
 
@@ -23,10 +24,10 @@ public class AbapDelimiterRule extends BaseAbapRule {
 		}
 
 		if (c == ':' && ctx.lastTokenMatches(TokenType.KEYWORD)) {
-			if (ctx.active(ContextFlag.CONTEXT_FUNC_DECL)) {
-				ctx.activate(ContextFlag.CONTEXT_FUNC_MULTI_DECL);
-			} else if (ctx.active(ContextFlag.CONTEXT_DATA_DECL)) {
-				ctx.activate(ContextFlag.CONTEXT_DATA_MULTI_DECL);
+			if (ctx.active(ContextFlag.FN_DECL)) {
+				ctx.activate(ContextFlag.FN_MULTI_DECL);
+			} else if (ctx.active(ContextFlag.DATA_DECL)) {
+				ctx.activate(ContextFlag.DATA_MULTI_DECL);
 			}
 		}
 		

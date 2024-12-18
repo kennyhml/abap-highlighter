@@ -1,13 +1,12 @@
 package de.kennyhml.e4.abap_highlighter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
 
 /**
  * Stores information about the current context.
@@ -24,21 +23,6 @@ import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
  *          document scanner.
  */
 public class AbapContext {
-
-	public enum ContextFlag {
-		CONTEXT_NONE(0), CONTEXT_STRUCT_DECL(2), // begin of # [..context..] end of #.
-		CONTEXT_FUNC_DECL(3), // methods [context].
-		CONTEXT_FUNC_MULTI_DECL(4), // methods: [context].
-		CONTEXT_FMT_STRING(5), // | [context] |.
-		CONTEXT_DATA_DECL(6), // data [context].
-		CONTEXT_DATA_MULTI_DECL(7); // data: [context]
-
-		public final int flag;
-
-		ContextFlag(int id) {
-			this.flag = 1 << id;
-		}
-	}
 
 	/**
 	 * Clears the context, i.e resets all tokens and flags to the initial values.

@@ -1,5 +1,8 @@
 package de.kennyhml.e4.abap_highlighter;
 
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+
 import java.util.Set;
 
 import org.eclipse.jface.text.rules.IToken;
@@ -7,21 +10,18 @@ import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
-import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
-import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
-
 public class AbapFieldRule extends BaseAbapRule {
 
 	private static class FieldDetector implements IWordDetector {
 
 		@Override
 		public boolean isWordStart(char c) {
-			return Character.isLetter(c);
+			return Character.isLetter(c) || c == '/';
 		}
 
 		@Override
 		public boolean isWordPart(char c) {
-			return Character.isLetterOrDigit(c) || c == '_';
+			return Character.isLetterOrDigit(c) || c == '_' || c == '/';
 		}
 	}
 
@@ -86,7 +86,7 @@ public class AbapFieldRule extends BaseAbapRule {
 	}
 
 	private boolean isDefiningField(AbapContext ctx) {
-		return ctx.active(ContextFlag.CONTEXT_STRUCT_DECL) && ctx.lastTokenMatches(TokenType.DELIMITER, ",");
+		return ctx.active(ContextFlag.STRUCT_DECL) && ctx.lastTokenMatches(TokenType.DELIMITER, ",");
 	}
 
 	private static final Color FIELD_COLOR = new Color(147, 115, 165);

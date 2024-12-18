@@ -1,14 +1,14 @@
 package de.kennyhml.e4.abap_highlighter;
 
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+
 import java.util.Set;
 
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
-
-import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
-import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapKeywordRule extends BaseAbapRule {
 
@@ -33,8 +33,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 
 		// Prevent mistaking an identifer for a keyword token when it is ambiguous, e.g
 		// class=>create()
-		if (ctx.lastTokenMatches(TokenType.OPERATOR, ">") 
-				&& ctx.tokenMatchesAny(1, TokenType.OPERATOR, Set.of("=", "-"))) {
+		if (ctx.lastTokenMatchesAny(TokenType.OPERATOR, Set.of("=>", "->"))) {
 			return Token.UNDEFINED;
 		}
 
@@ -60,16 +59,16 @@ public class AbapKeywordRule extends BaseAbapRule {
 
 		if (ctx.hasWord("types") && text.equals("of")) {
 			if (ctx.lastTokenMatches(TokenType.KEYWORD, "begin")) {
-				ctx.activate(ContextFlag.CONTEXT_STRUCT_DECL);
+				ctx.activate(ContextFlag.STRUCT_DECL);
 			} else if (ctx.lastTokenMatches(TokenType.KEYWORD, "end")) {
-				ctx.deactivate(ContextFlag.CONTEXT_STRUCT_DECL);
+				ctx.deactivate(ContextFlag.STRUCT_DECL);
 			}
 		} else if (fDataContextActivators.contains(text)) {
 			// This may be multi declaration too, that flag will be set by delimiter rule.
-			ctx.activate(ContextFlag.CONTEXT_DATA_DECL);
+			ctx.activate(ContextFlag.DATA_DECL);
 		} else if (fFuncContextActivators.contains(text)) {
 			// Could also be multi decl
-			ctx.activate(ContextFlag.CONTEXT_FUNC_DECL);
+			ctx.activate(ContextFlag.FN_DECL);
 		}
 
 		fKeywordToken.setText(text);

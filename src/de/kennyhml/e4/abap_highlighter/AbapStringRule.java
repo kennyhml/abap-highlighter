@@ -1,5 +1,8 @@
 package de.kennyhml.e4.abap_highlighter;
 
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -9,9 +12,6 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
-
-import de.kennyhml.e4.abap_highlighter.AbapContext.ContextFlag;
-import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 public class AbapStringRule implements IRule {
 
@@ -31,7 +31,7 @@ public class AbapStringRule implements IRule {
 			if ((char)c == getLastSymbol()) {
 				((AbapToken) stringToken).setText(Character.toString(symbolStack.removeLast()));
 				abapScanner.getContext().addToken((AbapToken) stringToken);
-				abapScanner.getContext().deactivate(ContextFlag.CONTEXT_FMT_STRING);
+				abapScanner.getContext().deactivate(ContextFlag.FMT_STRING);
 				return stringToken;
 			}
 			stringContinuing = true;
@@ -39,7 +39,7 @@ public class AbapStringRule implements IRule {
 			stringStarting = true;
 			symbolStack.add((char)c);
 			if (c == '|') {
-				abapScanner.getContext().activate(ContextFlag.CONTEXT_FMT_STRING);
+				abapScanner.getContext().activate(ContextFlag.FMT_STRING);
 			}
 		}
 		
