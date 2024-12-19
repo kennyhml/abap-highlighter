@@ -3,6 +3,8 @@ A lightweight plug-in for [Eclipse](eclipse) that works with and modifies the [A
 It aims to address the highly dissatisfactory ADT syntax highlighting, which groups together tokens with vastly different meanings, to make looking at ABAP code slightly
 more bearable.
 
+If ABAP won't go to modernization, just bring the modernization to ABAP :)
+
 # Supported Token Types
 - ✔️ Functions / Methods
 - ✔️ Identifiers
