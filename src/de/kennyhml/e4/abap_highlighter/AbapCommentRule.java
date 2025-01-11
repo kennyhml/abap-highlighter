@@ -7,6 +7,7 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
 
 public class AbapCommentRule extends BaseAbapRule {
 
@@ -23,14 +24,14 @@ public class AbapCommentRule extends BaseAbapRule {
 		}
 	}
 	
+	
+	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
+		return !ctx.active(ContextFlag.FMT_STRING);
+	}
+	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
-		AbapContext ctx = scanner.getContext();
-		
-		// Replace with check for inside string context!
-		if (ctx.lastTokenMatches(TokenType.DELIMITER, "}")) {
-			return Token.UNDEFINED;
-		}
 		
 		int c = scanner.read();
 		if (c != ICharacterScanner.EOF && isCommentStart(scanner.getColumn(), c)) {

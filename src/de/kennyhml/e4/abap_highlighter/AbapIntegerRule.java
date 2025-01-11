@@ -2,6 +2,8 @@ package de.kennyhml.e4.abap_highlighter;
 
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
+import java.util.Set;
+
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.Token;
@@ -23,6 +25,19 @@ public class AbapIntegerRule extends BaseAbapRule {
 		}
 	}
 
+	/** Check if an integer literal is possible in the current context.
+	 * 
+	 * Integer literals are pretty easy to distinguish since they start with
+	 * a number and have only numbers in them, its not really necessary to
+	 * base it on the context as of now. They also have a ton of things that
+	 * could lead to an integer literals (assignments, comparisons, math operations..)
+	 */
+	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
+		return true;
+	}
+	
+	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		

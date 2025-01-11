@@ -28,6 +28,13 @@ public class AbapIdentifierRule extends BaseAbapRule {
 	}
 
 	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
+		// identifiers are pretty much valid in every context as we also dont
+		// currently differentiate between type and variable identifiers..
+		return true;
+	}
+	
+	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 

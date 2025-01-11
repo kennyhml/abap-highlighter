@@ -26,27 +26,6 @@ public class AbapFunctionRule extends BaseAbapRule {
 		}
 	}
 
-	@Override
-	public IToken evaluate(AbapScanner scanner) {
-		AbapContext ctx = scanner.getContext();
-
-		if (!functionAllowedInContext(ctx)) {
-			return Token.UNDEFINED;
-		}
-
-		int c = scanner.read();
-		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
-			String text = scanner.readNext(c, fDetector);
-
-			if (isFunctionDeclaration(scanner) || scanForCall(scanner)) {
-				fSubroutineToken.setText(text);
-				ctx.addToken(fSubroutineToken);
-				return fSubroutineToken;
-			}
-		}
-		return Token.UNDEFINED;
-	}
-
 	/**
 	 * Check for some keywords that initiate a call-like sequence, such as Class
 	 * initialization: new z_class( ). Type casts: conv z_custom_Type( lv_value ).
@@ -58,10 +37,27 @@ public class AbapFunctionRule extends BaseAbapRule {
 	 * 
 	 * @return Whether a function is allowed in the current context.
 	 */
-	private boolean functionAllowedInContext(AbapContext ctx) {
+	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
 		return !ctx.lastTokenMatchesAny(TokenType.KEYWORD, fForbiddenContext) 
 				&& !ctx.active(ContextFlag.DATA_MULTI_DECL);
 	}
+	
+	@Override
+	public IToken evaluate(AbapScanner scanner) {
+		int c = scanner.read();
+		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
+			String text = scanner.readNext(c, fDetector);
+
+			if (isFunctionDeclaration(scanner) || scanForCall(scanner)) {
+				fSubroutineToken.setText(text);
+				scanner.getContext().addToken(fSubroutineToken);
+				return fSubroutineToken;
+			}
+		}
+		return Token.UNDEFINED;
+	}
+
 
 	/**
 	 * Checks if the current token is a function declaration based on the previous

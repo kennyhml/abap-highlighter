@@ -7,8 +7,18 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.swt.graphics.Color;
 
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+
 public class AbapOperatorRule extends BaseAbapRule {
 
+	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
+		return ctx.lastTokenMatches(TokenType.IDENTIFIER) 
+				|| ctx.lastTokenMatches(TokenType.LITERAL) 
+				|| ctx.lastTokenMatchesAny(TokenType.DELIMITER, Set.of("]", ")"));
+	}
+	
+	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		int c = scanner.read();

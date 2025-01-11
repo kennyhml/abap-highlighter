@@ -36,9 +36,9 @@ public class AbapContext {
 	}
 
 	/**
-	 * Pushes a bracket onto the bracket stack of the current context.
-	 * All bracket types (), {] and [] use the same stack for color distinction.
-	 *  
+	 * Pushes a bracket onto the bracket stack of the current context. All bracket
+	 * types (), {] and [] use the same stack for color distinction.
+	 * 
 	 * @return The stack value before pushing the bracket onto it.
 	 */
 	public int pushBracket() {
@@ -46,9 +46,9 @@ public class AbapContext {
 	}
 
 	/**
-	 * Pushes a bracket onto the bracket stack of the current context.
-	 * All bracket types (), {] and [] use the same stack for color distinction.
-	 *  
+	 * Pushes a bracket onto the bracket stack of the current context. All bracket
+	 * types (), {] and [] use the same stack for color distinction.
+	 * 
 	 * @return The stack value after popping the bracket from it.
 	 */
 	public int popBracket() {
@@ -96,6 +96,11 @@ public class AbapContext {
 		}
 	}
 
+	public boolean isEmpty() {
+		return fTokenWords.isEmpty();
+	}
+	
+	
 	/**
 	 * Checks if the current context contains the given word.
 	 * 

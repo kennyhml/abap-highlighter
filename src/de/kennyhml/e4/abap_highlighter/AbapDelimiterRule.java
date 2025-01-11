@@ -15,6 +15,12 @@ import org.eclipse.swt.graphics.Color;
 public class AbapDelimiterRule extends BaseAbapRule {
 
 	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
+		// Delimiters cannot exist as the first token in a context
+		return !ctx.isEmpty();
+	}
+	
+	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 

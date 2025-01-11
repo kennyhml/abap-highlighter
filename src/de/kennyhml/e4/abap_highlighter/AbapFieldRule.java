@@ -25,6 +25,13 @@ public class AbapFieldRule extends BaseAbapRule {
 		}
 	}
 
+	
+	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
+		return (isAccessingField(ctx) || isDefiningField(ctx) || isDefiningKeyComponents(ctx));
+	}
+	
+	
 	@Override
 	/*
 	 * Check if previous token is a field initiator, for example
@@ -47,9 +54,6 @@ public class AbapFieldRule extends BaseAbapRule {
 	 */
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
-		if (!isAccessingField(ctx) && !isDefiningField(ctx) && !isDefiningKeyComponents(ctx)) {
-			return Token.UNDEFINED;
-		}
 
 		int c = scanner.read();
 		if (!fDetector.isWordStart((char) c)) {

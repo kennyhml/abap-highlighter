@@ -27,6 +27,12 @@ public class AbapKeywordRule extends BaseAbapRule {
 		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\r', '\n', '.', '(', ':', '>');
 	}
 
+	
+	@Override
+	public boolean isPossibleInContext(AbapContext ctx) {
+		return true;
+	}
+	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
