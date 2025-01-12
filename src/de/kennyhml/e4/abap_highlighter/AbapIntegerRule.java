@@ -41,12 +41,12 @@ public class AbapIntegerRule extends BaseAbapRule {
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		
-		int c = scanner.read();
+		int c = scanner.peek();
 		if (c == AbapScanner.EOF || !fDetector.isWordStart((char)c)) {
 			return Token.UNDEFINED;
 		}
 		
-		String text = scanner.readNext(c, fDetector);
+		String text = scanner.readNext(fDetector);
 		
 		fIntegerToken.setText(text);
 		scanner.getContext().addToken(fIntegerToken);

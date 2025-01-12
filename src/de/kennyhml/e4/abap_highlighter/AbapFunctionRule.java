@@ -45,9 +45,9 @@ public class AbapFunctionRule extends BaseAbapRule {
 	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
-		int c = scanner.read();
+		int c = scanner.peek();
 		if (c != ICharacterScanner.EOF && fDetector.isWordStart((char) c)) {
-			String text = scanner.readNext(c, fDetector);
+			String text = scanner.readNext(fDetector);
 
 			if (isFunctionDeclaration(scanner) || scanForCall(scanner)) {
 				fSubroutineToken.setText(text);
@@ -154,7 +154,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 
-	private AbapToken fSubroutineToken = new AbapToken(SUBROUTINE_COLOR, TokenType.FUNCTION_CALL);
+	private AbapToken fSubroutineToken = new AbapToken(SUBROUTINE_COLOR, TokenType.FUNCTION);
 
 	private IWordDetector fDetector = new FunctionDetector();
 }

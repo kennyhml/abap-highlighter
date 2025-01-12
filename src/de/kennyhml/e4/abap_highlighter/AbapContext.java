@@ -157,6 +157,18 @@ public class AbapContext {
 	public AbapToken getLastToken() {
 		return getToken(0);
 	}
+	
+	public boolean isTokenPossible(TokenType type) {
+		if (fNextPossibleTokenTypes.isEmpty()) {
+			return true;
+		}
+		return fNextPossibleTokenTypes.contains(type);
+	}
+	
+	
+	public void setNextPossibleTokens(Set<TokenType> types) {
+		fNextPossibleTokenTypes = types;
+	}
 
 	/**
 	 * Checks if the token at the given offset matches the criteria.
@@ -232,7 +244,8 @@ public class AbapContext {
 	public boolean lastTokenMatchesAny(TokenType type, Set<String> terms) {
 		return tokenMatchesAny(0, type, terms);
 	}
-
+	
+	private Set<TokenType> fNextPossibleTokenTypes = new HashSet<TokenType>();
 	private List<AbapToken> fTokens = new ArrayList<>();
 	private Set<String> fTokenWords = new HashSet<String>();
 	private int fCtxFlags = 0;

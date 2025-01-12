@@ -33,10 +33,10 @@ public class AbapCommentRule extends BaseAbapRule {
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		
-		int c = scanner.read();
+		int c = scanner.peek();
 		if (c != ICharacterScanner.EOF && isCommentStart(scanner.getColumn(), c)) {
 			// Read until end of line, it is not possible for a comment to end before that.
-			String text = scanner.readNext(c, fDetector);
+			String text = scanner.readNext(fDetector);
 			commentToken.setText(text);
 			return commentToken;
 		}

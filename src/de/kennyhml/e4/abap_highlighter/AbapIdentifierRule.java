@@ -38,12 +38,12 @@ public class AbapIdentifierRule extends BaseAbapRule {
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 
-		int c = scanner.read();
+		int c = scanner.peek();
 		if (c == ICharacterScanner.EOF || !fDetector.isWordStart((char) c)) {
 			return Token.UNDEFINED;
 		}
 
-		String text = scanner.readNext(c, fDetector);
+		String text = scanner.readNext(fDetector);
 
 		if (inTypeContext(ctx) || staticAccessUpcoming(scanner)) {
 			fTypeToken.setText(text);

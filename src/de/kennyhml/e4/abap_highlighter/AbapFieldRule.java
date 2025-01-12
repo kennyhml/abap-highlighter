@@ -55,13 +55,13 @@ public class AbapFieldRule extends BaseAbapRule {
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 
-		int c = scanner.read();
-		if (!fDetector.isWordStart((char) c)) {
+		int c = scanner.peek();
+		if (c == AbapScanner.EOF || !fDetector.isWordStart((char) c)) {
 			return Token.UNDEFINED;
 		}
 
 		// Read the full word, we know it must be a field.
-		String currWord = scanner.readNext(c, fDetector);
+		String currWord = scanner.readNext(fDetector);
 		String nextWord = scanner.peekNext(fDetector);
 
 		// Next word is components, rewind the scanner completely.

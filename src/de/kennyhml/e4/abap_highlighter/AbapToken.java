@@ -17,7 +17,7 @@ public class AbapToken extends Token {
 		COMMENT, 
 		STRING, 
 		LITERAL, 
-		FUNCTION_CALL, 
+		FUNCTION, 
 		FIELD,
 		KEY,
 	};
