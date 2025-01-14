@@ -33,6 +33,12 @@ public class AbapFieldRule extends BaseAbapRule {
 	
 	
 	@Override
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
+	
+	
+	@Override
 	/*
 	 * Check if previous token is a field initiator, for example
 	 * 
@@ -71,9 +77,9 @@ public class AbapFieldRule extends BaseAbapRule {
 			return fKeyToken;
 		}
 
-		fFieldToken.setText(currWord);
-		ctx.addToken(fFieldToken);
-		return fFieldToken;
+		fToken.setText(currWord);
+		ctx.addToken(fToken);
+		return fToken;
 	}
 
 	private boolean isAccessingField(AbapContext ctx) {
@@ -96,7 +102,7 @@ public class AbapFieldRule extends BaseAbapRule {
 	private static final Color FIELD_COLOR = new Color(147, 115, 165);
 	private static final Color KEY_COLOR = new Color(149, 98, 181);
 
-	private AbapToken fFieldToken = new AbapToken(FIELD_COLOR, TokenType.FIELD);
+	private AbapToken fToken = new AbapToken(FIELD_COLOR, TokenType.FIELD);
 	private AbapToken fKeyToken = new AbapToken(KEY_COLOR, TokenType.FIELD);
 
 	private Set<String> fFieldInitiators = Set.of("-", "~");

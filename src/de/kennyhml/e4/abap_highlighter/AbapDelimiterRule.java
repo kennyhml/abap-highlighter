@@ -20,6 +20,12 @@ public class AbapDelimiterRule extends BaseAbapRule {
 		return !ctx.isEmpty();
 	}
 	
+	
+	@Override
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
+	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
@@ -46,15 +52,15 @@ public class AbapDelimiterRule extends BaseAbapRule {
 		
 		// No color
 		if (stack == -1) {
-			fDelimiterToken.setData(new TextAttribute(NO_COLOR));
+			fToken.setData(new TextAttribute(NO_COLOR));
 		} else {
 			// Set the color based on the current bracket stack
-			fDelimiterToken.setData(new TextAttribute(fColors[stack % fColors.length]));
+			fToken.setData(new TextAttribute(fColors[stack % fColors.length]));
 		}
 
-		fDelimiterToken.setText(Character.toString(c));
-		ctx.addToken(fDelimiterToken);
-		return fDelimiterToken;
+		fToken.setText(Character.toString(c));
+		ctx.addToken(fToken);
+		return fToken;
 	}
 	
 	private static final Color NO_COLOR = new Color(255, 255, 255);
@@ -65,7 +71,7 @@ public class AbapDelimiterRule extends BaseAbapRule {
 	
 	private static final Color[] fColors = { STACK_YELLOW, STACK_PURPLE, STACK_BLUE };
 	
-	private AbapToken fDelimiterToken = new AbapToken(NO_COLOR, TokenType.DELIMITER);
+	private AbapToken fToken = new AbapToken(NO_COLOR, TokenType.DELIMITER);
 
 	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']', ':', '.', ',');
 	static final Set<Character> OPENING_PARENS = Set.of('(', '{', '[');

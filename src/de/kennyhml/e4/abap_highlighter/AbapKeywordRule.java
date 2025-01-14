@@ -45,6 +45,11 @@ public class AbapKeywordRule extends BaseAbapRule {
 	}
 	
 	@Override
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
+	
+	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 
@@ -65,9 +70,9 @@ public class AbapKeywordRule extends BaseAbapRule {
 			return Token.UNDEFINED;
 		}
 		
-		fKeywordToken.setText(text);
-		ctx.addToken(fKeywordToken);
-		return fKeywordToken;
+		fToken.setText(text);
+		ctx.addToken(fToken);
+		return fToken;
 		
 		
 //		// Special case for handling 'me' keyword as the dash is part of alot of
@@ -95,7 +100,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 //			ctx.activate(ContextFlag.FN_DECL);
 //		}
 //
-//		fKeywordToken.setText(text);
+//		fToken.setText(text);
 //		ctx.addToken(fKeywordToken);
 //		return fKeywordToken;
 	}
@@ -180,7 +185,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 	
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
-	private AbapToken fKeywordToken = new AbapToken(KEYWORD_COLOR, AbapToken.TokenType.KEYWORD);
+	private AbapToken fToken = new AbapToken(KEYWORD_COLOR, AbapToken.TokenType.KEYWORD);
 
 	private AbapKeywordDetector fDetector = new AbapKeywordDetector();
 	

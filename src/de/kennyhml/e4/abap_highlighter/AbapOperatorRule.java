@@ -20,6 +20,11 @@ public class AbapOperatorRule extends BaseAbapRule {
 	
 	
 	@Override
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
+	
+	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		int c = scanner.read();
 		if (c == AbapScanner.EOF || !fOpCharacters.contains((char) c)) {
@@ -37,13 +42,13 @@ public class AbapOperatorRule extends BaseAbapRule {
 
 		// Check if this operator forms a "bigger" operator
 		if (fComplements.getOrDefault((char) c, (char)0) == next) {
-			fOperatorToken.setText(Character.toString(c) + Character.toString(next));
+			fToken.setText(Character.toString(c) + Character.toString(next));
 		} else {
 			scanner.unread();
-			fOperatorToken.setText(Character.toString(c));
+			fToken.setText(Character.toString(c));
 		}
-		scanner.getContext().addToken(fOperatorToken);
-		return fOperatorToken;
+		scanner.getContext().addToken(fToken);
+		return fToken;
 	}
 
 	private static final Set<Character> fOpCharacters = Set.of('=', '>', '<', '+', '-', '~', '/');
@@ -57,5 +62,5 @@ public class AbapOperatorRule extends BaseAbapRule {
 			'=', '>', 
 			'-', '>');
 
-	private static AbapToken fOperatorToken = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.OPERATOR);
+	private static AbapToken fToken = new AbapToken(new Color(255, 255, 255), AbapToken.TokenType.OPERATOR);
 }

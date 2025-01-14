@@ -5,6 +5,8 @@ import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
+import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+
 public abstract class BaseAbapRule implements IRule {
 	
 	/**
@@ -28,6 +30,11 @@ public abstract class BaseAbapRule implements IRule {
 	 * @return Whether the rules token can occur based on the context.
 	 */
 	public abstract boolean isPossibleInContext(AbapContext ctx);
+	
+	/**
+	 * @return The type of token that this scanner can return.
+	 */
+	public abstract TokenType getTokenType();
 	
 	@Override
 	public final IToken evaluate(ICharacterScanner scanner) {

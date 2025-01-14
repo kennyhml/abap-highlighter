@@ -24,6 +24,8 @@ public class AbapCommentRule extends BaseAbapRule {
 		}
 	}
 	
+	@Override
+	public TokenType getTokenType() { return fToken.getType(); }
 	
 	@Override
 	public boolean isPossibleInContext(AbapContext ctx) {
@@ -37,8 +39,8 @@ public class AbapCommentRule extends BaseAbapRule {
 		if (c != ICharacterScanner.EOF && isCommentStart(scanner.getColumn(), c)) {
 			// Read until end of line, it is not possible for a comment to end before that.
 			String text = scanner.readNext(fDetector);
-			commentToken.setText(text);
-			return commentToken;
+			fToken.setText(text);
+			return fToken;
 		}
 		return Token.UNDEFINED;
 	}
@@ -50,6 +52,6 @@ public class AbapCommentRule extends BaseAbapRule {
 	
 	private static final Color COMMENT_COLOR = new Color(87, 166, 74);
 
-	private AbapToken commentToken = new AbapToken(COMMENT_COLOR, TokenType.COMMENT);
+	private AbapToken fToken = new AbapToken(COMMENT_COLOR, TokenType.COMMENT);
 	CommentDetector fDetector = new CommentDetector();
 }

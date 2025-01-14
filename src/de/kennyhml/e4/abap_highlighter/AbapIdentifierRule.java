@@ -35,6 +35,11 @@ public class AbapIdentifierRule extends BaseAbapRule {
 	}
 	
 	@Override
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
+	
+	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 
@@ -51,9 +56,9 @@ public class AbapIdentifierRule extends BaseAbapRule {
 			return fTypeToken;
 		}
 
-		fIdentifierToken.setText(text);
-		ctx.addToken(fIdentifierToken);
-		return fIdentifierToken;
+		fToken.setText(text);
+		ctx.addToken(fToken);
+		return fToken;
 	}
 	
 	/**
@@ -121,7 +126,7 @@ public class AbapIdentifierRule extends BaseAbapRule {
 		return ret;
 	}
 
-	private AbapToken fIdentifierToken = new AbapToken(GENERIC_COLOR, AbapToken.TokenType.IDENTIFIER);
+	private AbapToken fToken = new AbapToken(GENERIC_COLOR, AbapToken.TokenType.IDENTIFIER);
 	private AbapToken fTypeToken = new AbapToken(TYPE_COLOR, AbapToken.TokenType.IDENTIFIER);
 
 	private IdentifierDetector fDetector = new IdentifierDetector();

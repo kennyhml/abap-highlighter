@@ -37,6 +37,10 @@ public class AbapIntegerRule extends BaseAbapRule {
 		return true;
 	}
 	
+	@Override
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
 	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
@@ -48,12 +52,12 @@ public class AbapIntegerRule extends BaseAbapRule {
 		
 		String text = scanner.readNext(fDetector);
 		
-		fIntegerToken.setText(text);
-		scanner.getContext().addToken(fIntegerToken);
-		return fIntegerToken;
+		fToken.setText(text);
+		scanner.getContext().addToken(fToken);
+		return fToken;
 	}
 
 	private static final Color LITERAL_COLOR = new Color(181, 206, 168);
-	private AbapToken fIntegerToken = new AbapToken(LITERAL_COLOR, TokenType.LITERAL);
+	private AbapToken fToken = new AbapToken(LITERAL_COLOR, TokenType.LITERAL);
 	private AbapIntegerDetector fDetector = new AbapIntegerDetector();
 }

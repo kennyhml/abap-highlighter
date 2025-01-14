@@ -43,6 +43,12 @@ public class AbapFunctionRule extends BaseAbapRule {
 				&& !ctx.active(ContextFlag.DATA_MULTI_DECL);
 	}
 	
+	
+	@Override
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
+	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
 		int c = scanner.peek();
@@ -50,9 +56,9 @@ public class AbapFunctionRule extends BaseAbapRule {
 			String text = scanner.readNext(fDetector);
 
 			if (isFunctionDeclaration(scanner) || scanForCall(scanner)) {
-				fSubroutineToken.setText(text);
-				scanner.getContext().addToken(fSubroutineToken);
-				return fSubroutineToken;
+				fToken.setText(text);
+				scanner.getContext().addToken(fToken);
+				return fToken;
 			}
 		}
 		return Token.UNDEFINED;
@@ -154,7 +160,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 	
 	private static final Color SUBROUTINE_COLOR = new Color(220, 220, 170);
 
-	private AbapToken fSubroutineToken = new AbapToken(SUBROUTINE_COLOR, TokenType.FUNCTION);
+	private AbapToken fToken = new AbapToken(SUBROUTINE_COLOR, TokenType.FUNCTION);
 
 	private IWordDetector fDetector = new FunctionDetector();
 }
