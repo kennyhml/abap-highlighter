@@ -38,16 +38,20 @@ public abstract class BaseAbapRule implements IRule {
 	
 	@Override
 	public final IToken evaluate(ICharacterScanner scanner) {
-		if (!isPossibleInContext(((AbapScanner)scanner).getContext())) {
+		AbapScanner abapScanner = (AbapScanner)scanner;
+		AbapContext ctx = abapScanner.getContext();
+		
+		// Make sure that this token is possible before checking for it
+		if (!isPossibleInContext(ctx) || !ctx.isTokenPossible(getTokenType())) {
 			return Token.UNDEFINED;
 		}
 		
-		IToken res = evaluate((AbapScanner)scanner);
+		IToken res = evaluate(abapScanner);
 		// Dont need to commit here, the scanner will do that after finding a
 		// matching token. The important thing is that we roll back advancements
 		// of the rule to make sure all rules start at the same position.
 		if (res.isUndefined()) {
-			((AbapScanner)scanner).rollback();
+			abapScanner.rollback();
 		}
 		return res;
 	}

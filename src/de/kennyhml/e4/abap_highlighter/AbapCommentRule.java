@@ -23,18 +23,20 @@ public class AbapCommentRule extends BaseAbapRule {
 			return c != '\n';
 		}
 	}
-	
+
 	@Override
-	public TokenType getTokenType() { return fToken.getType(); }
-	
+	public TokenType getTokenType() {
+		return fToken.getType();
+	}
+
 	@Override
 	public boolean isPossibleInContext(AbapContext ctx) {
 		return !ctx.active(ContextFlag.FMT_STRING);
 	}
-	
+
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
-		
+
 		int c = scanner.peek();
 		if (c != ICharacterScanner.EOF && isCommentStart(scanner.getColumn(), c)) {
 			// Read until end of line, it is not possible for a comment to end before that.
@@ -45,11 +47,10 @@ public class AbapCommentRule extends BaseAbapRule {
 		return Token.UNDEFINED;
 	}
 
-	
 	private boolean isCommentStart(int column, int c) {
 		return ((column == 1 && c == '*') || c == '"');
 	}
-	
+
 	private static final Color COMMENT_COLOR = new Color(87, 166, 74);
 
 	private AbapToken fToken = new AbapToken(COMMENT_COLOR, TokenType.COMMENT);

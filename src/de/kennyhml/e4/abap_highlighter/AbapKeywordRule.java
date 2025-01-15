@@ -5,6 +5,7 @@ import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.*;
 
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -13,6 +14,50 @@ import org.eclipse.swt.graphics.Color;
 
 public class AbapKeywordRule extends BaseAbapRule {
 
+	
+	private static class KeywordMapping {
+
+		public static class RelatedKeywords {
+			
+		    public RelatedKeywords(Set<String>  keywords, boolean required) {
+		        this.keywords = keywords;
+		        this.required = required;
+		    }
+		    
+			public Set<String> keywords;
+			public Boolean required;
+		}
+		
+
+	    private static final Map<String, RelatedKeywords> keywordMap = new HashMap<>();
+
+	    static {
+	        keywordMap.put("with", new RelatedKeywords(Set.of("non-unique", "unique", "default"), true));
+	        
+	        keywordMap.put("non-unique", new RelatedKeywords(Set.of("key"), true));
+	        keywordMap.put("unique", new RelatedKeywords(Set.of("key"), true));	    
+	        keywordMap.put("default", new RelatedKeywords(Set.of("key"), false)); 	        // could also be default value
+	        
+	        keywordMap.put("standard", new RelatedKeywords(Set.of("table"), true));
+	        keywordMap.put("hashed", new RelatedKeywords(Set.of("table"), true));
+	        keywordMap.put("sorted", new RelatedKeywords(Set.of("table"), true));
+	        
+	        // could be "table of" ... or "into table" or "read table".. (fully qualified)
+	        keywordMap.put("table", new RelatedKeywords(Set.of("of"), false));
+	        
+	        keywordMap.put("preferred", new RelatedKeywords(Set.of("parameter"), true));
+	        
+	        // could be "for testing" or "for all entries" but also just "for" in a loop
+	        keywordMap.put("for", new RelatedKeywords(Set.of("testing", "entries"), false));
+	        
+	    }
+
+	    public static RelatedKeywords getRelated(String keyword) {
+	        return keywordMap.getOrDefault(keyword, null);
+	    }
+
+	}
+	
 	private static class AbapKeywordDetector implements IWordDetector {
 
 		@Override
@@ -58,13 +103,12 @@ public class AbapKeywordRule extends BaseAbapRule {
 			return Token.UNDEFINED;
 		}
 
-
 		
 		// Remember that we dont need to manually unread the word because the
 		// scanner will rollback the advanced characters if the token is undefined!
 		String text = scanner.readNext(fDetector);
 		
-		text = checkFunctionSignatureKeywords(text, scanner);
+		text = checkFunctionSignature(text, scanner);
 		
 		if (text == null) {
 			return Token.UNDEFINED;
@@ -106,32 +150,56 @@ public class AbapKeywordRule extends BaseAbapRule {
 	}
 	
 	
-	private void checkFunctionSignatureKeywords(String text, AbapScanner scanner) {
+	private String checkClassSignature(String text, AbapScanner scanner) {
+		AbapContext ctx = scanner.getContext();
+		
+		if (fVisibilityKeywords.contains(text)) {
+			String next = scanner.peekNext(fDetector);
+			if (ctx.isEmpty() && next.equals("section")) {
+				// section declaration
+				return text + next;
+			}
+		}
+		
+		
+		if (fClassSignatureInitiators.contains(text)) {
+			if (text.equals("class")) {
+				ctx.setNextPossibleTokens(Set.of(TokenType.TYPE_IDENTIFIER));
+			}
+			
+			
+			return text;
+		} else if (ctx.isEmpty()) { return text; }
+		
+		
+		return text;
+	}
+	
+	private String checkFunctionSignature(String text, AbapScanner scanner) {
 		AbapContext ctx = scanner.getContext();
 		
 		// Not in a function declaration
 		if (!ctx.isEmpty() && !ctx.active(ContextFlag.FN_DECL)) { 
-			return;
+			return text;
 		}
-
 
 		// If its a function declaration the next keyword has to be the name of the function
 		if (fFunctionDecl.contains(text)) {
 			ctx.setNextPossibleTokens(Set.of(TokenType.FUNCTION));
-			return;
-		} else if (ctx.isEmpty()) { return; } // Has to be a declaration if there is no context
+			return text;
+		} else if (ctx.isEmpty()) { return text; } // Has to be a declaration if there is no context
 		
 		// The next token has to be an identifier after, for example, "importing" ...
 		if (fParameterSections.contains(text)) {
 			ctx.setNextPossibleTokens(Set.of(TokenType.IDENTIFIER));
-			return;
+			return text;
 		}
 		
 		if (fParamMetadata.contains(text)) {
-			return;
+			return text;
 		}
 		
-		return;
+		return text;
 	}
 	
 	
@@ -163,6 +231,16 @@ public class AbapKeywordRule extends BaseAbapRule {
 			"interfaces", "renaming", "suffix", "structure", "resumable", "read-only", "interface", "endinterface");
 
 	
+	private static final Set<String> fVisibilityKeywords = Set.of(
+			"public", "protected", "private"
+	);
+	
+	
+	private static final Set<String> fClassSignatureInitiators = Set.of(
+			"class", "private", "public", "section", "global", "local", "friends"
+	);
+	
+		
 	private static final Set<String> fParameterSections = Set.of(
 			"importing", "exporting", "changing", "returning", "raising", "receiving", "exceptions"
 

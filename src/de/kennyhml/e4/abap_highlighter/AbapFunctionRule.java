@@ -58,6 +58,7 @@ public class AbapFunctionRule extends BaseAbapRule {
 			if (isFunctionDeclaration(scanner) || scanForCall(scanner)) {
 				fToken.setText(text);
 				scanner.getContext().addToken(fToken);
+				scanner.getContext().setNextPossibleTokens(Set.of(TokenType.DELIMITER, TokenType.KEYWORD));
 				return fToken;
 			}
 		}

@@ -20,6 +20,7 @@ public class AbapToken extends Token {
 		FUNCTION, 
 		FIELD,
 		KEY,
+		TYPE_IDENTIFIER
 	};
 	
 	/**
