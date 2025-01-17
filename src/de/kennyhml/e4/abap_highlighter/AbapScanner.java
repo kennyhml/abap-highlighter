@@ -1,11 +1,14 @@
 package de.kennyhml.e4.abap_highlighter;
 
+import java.util.Set;
+
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
+import org.eclipse.jface.text.rules.Token;
 
 public class AbapScanner extends RuleBasedScanner {
 
@@ -20,7 +23,7 @@ public class AbapScanner extends RuleBasedScanner {
 	public void commit() {
 		fCommittedOffset = fOffset;
 	}
-
+	
 	/**
 	 * Rolls the scanner position back to what it was at the time of the previous
 	 * commit.
@@ -38,6 +41,13 @@ public class AbapScanner extends RuleBasedScanner {
 	@Override
 	public IToken nextToken() {
 		IToken ret = super.nextToken();
+		
+		// Token not recognized, try to allow all token types again and recheck
+		if (ret.isUndefined()) {
+			fContext.setNextPossibleTokens(Set.of());
+			rollback();
+			ret = super.nextToken();
+		}
 		commit();
 		return ret;
 	}
@@ -65,6 +75,8 @@ public class AbapScanner extends RuleBasedScanner {
 		return c;
 	}
 
+	
+	
 	/**
 	 * Reads the next word (if available), the scanner is rewinded back to it's
 	 * original position afterwards. Commit and rollback are not used.

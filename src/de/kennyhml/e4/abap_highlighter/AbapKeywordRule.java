@@ -26,18 +26,13 @@ public class AbapKeywordRule extends BaseAbapRule {
 			return !fKeywordTerminators.contains((char) c);
 		}
 
-		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\r', '\n', '.', '(', ':', '>');
+		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\r', '\n', '.', '(', '>');
 	}
 
 	@Override
 	public boolean isPossibleInContext(AbapContext ctx) {
 		// referencing a class or instance member, impossible to be a keyword.
 		if (ctx.lastTokenMatchesAny(TokenType.OPERATOR, Set.of("=>", "->"))) {
-			return false;
-		}
-
-		// Function implementation body, the upcoming token has to be a function name.
-		if (ctx.lastTokenMatches(TokenType.KEYWORD, "method")) {
 			return false;
 		}
 
@@ -62,98 +57,53 @@ public class AbapKeywordRule extends BaseAbapRule {
 		// scanner will rollback the advanced characters if the token is undefined!
 		String text = scanner.readNext(fDetector);
 
-		text = checkFunctionSignature(text, scanner);
-
 		if (text == null) {
+			return Token.UNDEFINED;
+		}
+
+		// Special case for handling 'me' keyword as the dash is part of alot of
+		// other keywords and cannot simply be filtered out.
+		if (text.equals("me-")) {
+			scanner.unread();
+			text = text.replace("-", "");
+		}
+
+		if (!fKeywords.contains(text)) {
 			return Token.UNDEFINED;
 		}
 
 		fToken.setText(text);
 		ctx.addToken(fToken);
+		checkContextChanged(ctx);
+		
+		// Set next possible token type based on the keyword (if known)
+		ctx.setNextPossibleTokens(fSuccessorTypes.getOrDefault(text, Set.of()));
 		return fToken;
-
-//		// Special case for handling 'me' keyword as the dash is part of alot of
-//		// other keywords and cannot simply be filtered out.
-//		if (text.equals("me-")) {
-//			scanner.unread();
-//			text = text.substring(0, 2); 
-//		}
-//		
-//		if (!fKeywords.contains(text)) {
-//			return Token.UNDEFINED;
-//		}
-//
-//		if (ctx.hasWord("types") && text.equals("of")) {
-//			if (ctx.lastTokenMatches(TokenType.KEYWORD, "begin")) {
-//				ctx.activate(ContextFlag.STRUCT_DECL);
-//			} else if (ctx.lastTokenMatches(TokenType.KEYWORD, "end")) {
-//				ctx.deactivate(ContextFlag.STRUCT_DECL);
-//			}
-//		} else if (fDataContextActivators.contains(text)) {
-//			// This may be multi declaration too, that flag will be set by delimiter rule.
-//			ctx.activate(ContextFlag.DATA_DECL);
-//		} else if (fFuncContextActivators.contains(text)) {
-//			// Could also be multi decl
-//			ctx.activate(ContextFlag.FN_DECL);
-//		}
-//
-//		fToken.setText(text);
-//		ctx.addToken(fKeywordToken);
-//		return fKeywordToken;
 	}
 
-	private String checkClassSignature(String text, AbapScanner scanner) {
-		AbapContext ctx = scanner.getContext();
+	public void checkContextChanged(AbapContext ctx) {
 
-		if (fVisibilityKeywords.contains(text)) {
-			String next = scanner.peekNext(fDetector);
-			if (ctx.isEmpty() && next.equals("section")) {
-				// section declaration
-				return text + next;
+		String lastWord = ctx.getLastToken().getText();
+		String withoutMod = lastWord.replaceAll(":", "");
+
+		// Check for types: begin of ... end of.
+		if (ctx.hasWord("types:") && lastWord.equals("of")) {
+			if (ctx.lastTokenMatches(TokenType.KEYWORD, "begin")) {
+				ctx.activate(ContextFlag.STRUCT_DECL);
+			} else if (ctx.lastTokenMatches(TokenType.KEYWORD, "end")) {
+				ctx.deactivate(ContextFlag.STRUCT_DECL);
 			}
+		} else if (fDataContextActivators.contains(lastWord)) {
+			ctx.activate(ContextFlag.DATA_DECL);
+		} else if (fFuncContextActivators.contains(lastWord)) {
+			ctx.activate(ContextFlag.FN_DECL);
 		}
-
-		if (fClassSignatureInitiators.contains(text)) {
-			if (text.equals("class")) {
-				ctx.setNextPossibleTokens(Set.of(TokenType.TYPE_IDENTIFIER));
-			}
-
-			return text;
-		} else if (ctx.isEmpty()) {
-			return text;
+		// Also check if the last word with the ':' removed fits.
+		else if (fDataContextActivators.contains(withoutMod)) {
+			ctx.activate(ContextFlag.DATA_MULTI_DECL);
+		} else if (fFuncContextActivators.contains(withoutMod)) {
+			ctx.activate(ContextFlag.FN_MULTI_DECL);
 		}
-
-		return text;
-	}
-
-	private String checkFunctionSignature(String text, AbapScanner scanner) {
-		AbapContext ctx = scanner.getContext();
-
-		// Not in a function declaration
-		if (!ctx.isEmpty() && !ctx.active(ContextFlag.FN_DECL)) {
-			return text;
-		}
-
-		// If its a function declaration the next keyword has to be the name of the
-		// function
-		if (fFunctionDecl.contains(text)) {
-			ctx.setNextPossibleTokens(Set.of(TokenType.FUNCTION));
-			return text;
-		} else if (ctx.isEmpty()) {
-			return text;
-		} // Has to be a declaration if there is no context
-
-		// The next token has to be an identifier after, for example, "importing" ...
-		if (fParameterSections.contains(text)) {
-			ctx.setNextPossibleTokens(Set.of(TokenType.IDENTIFIER));
-			return text;
-		}
-
-		if (fParamMetadata.contains(text)) {
-			return text;
-		}
-
-		return text;
 	}
 
 	private static final Set<String> fDataContextActivators = Set.of("data", "class-data", "parameters");
@@ -182,33 +132,10 @@ public class AbapKeywordRule extends BaseAbapRule {
 			"requested", "testing", "duration", "short", "risk", "level", "harmless", "local", "global", "friends",
 			"interfaces", "renaming", "suffix", "structure", "resumable", "read-only", "interface", "endinterface");
 
-	private static final Set<String> fVisibilityKeywords = Set.of("public", "protected", "private");
-
-	private static final Set<String> fClassSignatureInitiators = Set.of("class", "private", "public", "section",
-			"global", "local", "friends");
-
-	private static final Set<String> fParameterSections = Set.of("importing", "exporting", "changing", "returning",
-			"raising", "receiving", "exceptions"
-
-	);
-
-	private static final Set<String> fFunctionDecl = Set.of("methods", "class-methods");
-
-	private static final Set<String> fParamMetadata = Set.of("type", "like", "value", "reference", "ref", "to",
-			"default", "optional", "preferred", "parameter");
-
-	
-	// Map each keyword to its possible continatuations, but only consider words that actually start the 
-	// keyword chain. For example, the keyword "with" can chain with "with non-unique key" or "with default key"
-	// etc. But the word "non-unique" can only chain with "non-unique key" which is already covered by "with".
-	private static final Map<String, Set<String>> fKeywordChains = Map.ofEntries(
-			Map.entry("ref", Set.of("to")),
-			Map.entry("with", Set.of("default key", "unique key", "non-unique key"))
-	);
-
-	// Keywords that can exist on their own
-	private static final Set<String> fullyQualifiedKeywords = Set.of(
-			"if", "else", "elseif", "endif", "endloop", "do", "times", "enddo", "while", "endwhile");
+	// Map each keyword to the type of token that could follow afterwards
+	private static Map<String, Set<TokenType>> fSuccessorTypes = Map.ofEntries(
+			Map.entry("if", Set.of(TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.TYPE_IDENTIFIER)),
+			Map.entry("class", Set.of(TokenType.TYPE_IDENTIFIER)), Map.entry("methods", Set.of(TokenType.FUNCTION)));
 
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
