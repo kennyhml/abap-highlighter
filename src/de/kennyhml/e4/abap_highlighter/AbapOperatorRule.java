@@ -13,7 +13,7 @@ public class AbapOperatorRule extends BaseAbapRule {
 
 	@Override
 	public boolean isPossibleInContext(AbapContext ctx) {
-		return ctx.lastTokenMatches(TokenType.IDENTIFIER) 
+		return ctx.lastTokenMatches(TokenType.TYPE_IDENTIFIER) 
 				|| ctx.lastTokenMatches(TokenType.LITERAL) 
 				|| ctx.lastTokenMatchesAny(TokenType.DELIMITER, Set.of("]", ")"));
 	}
@@ -48,6 +48,7 @@ public class AbapOperatorRule extends BaseAbapRule {
 			fToken.setText(Character.toString(c));
 		}
 		scanner.getContext().addToken(fToken);
+		scanner.getContext().setNextPossibleTokens(Set.of());
 		return fToken;
 	}
 

@@ -1,6 +1,5 @@
 package de.kennyhml.e4.abap_highlighter;
 
-import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 
 import java.util.Set;
@@ -34,14 +33,6 @@ public class AbapDelimiterRule extends BaseAbapRule {
 		if (c == ICharacterScanner.EOF || !DELIMITERS.contains((char) c)) {
 			return Token.UNDEFINED;
 		}
-
-		if (c == ':' && ctx.lastTokenMatches(TokenType.KEYWORD)) {
-			if (ctx.active(ContextFlag.FN_DECL)) {
-				ctx.activate(ContextFlag.FN_MULTI_DECL);
-			} else if (ctx.active(ContextFlag.DATA_DECL)) {
-				ctx.activate(ContextFlag.DATA_MULTI_DECL);
-			}
-		}
 		
 		int stack = -1;
 		if (OPENING_PARENS.contains((char)c)) {
@@ -60,6 +51,7 @@ public class AbapDelimiterRule extends BaseAbapRule {
 
 		fToken.setText(Character.toString(c));
 		ctx.addToken(fToken);
+		ctx.setNextPossibleTokens(Set.of());
 		return fToken;
 	}
 	
@@ -73,7 +65,7 @@ public class AbapDelimiterRule extends BaseAbapRule {
 	
 	private AbapToken fToken = new AbapToken(NO_COLOR, TokenType.DELIMITER);
 
-	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']', ':', '.', ',');
+	static final Set<Character> DELIMITERS = Set.of('(', ')', '{', '}', '[', ']', '.', ',');
 	static final Set<Character> OPENING_PARENS = Set.of('(', '{', '[');
 	static final Set<Character> CLOSING_PARENS = Set.of(')', '}', ']');
 }

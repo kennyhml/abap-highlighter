@@ -6,6 +6,7 @@ import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
@@ -60,6 +61,7 @@ public class AbapStringRule implements IRule {
 			
 			((AbapToken) stringToken).setText(fBuffer.toString());
 			abapScanner.getContext().addToken((AbapToken) stringToken);
+			abapScanner.getContext().setNextPossibleTokens(Set.of());
 			return stringToken;
 		}
 

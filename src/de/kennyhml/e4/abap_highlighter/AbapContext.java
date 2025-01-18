@@ -31,6 +31,7 @@ public class AbapContext {
 	public void clear() {
 		fTokens.clear();
 		fTokenWords.clear();
+		fNextPossibleTokenTypes = Set.of();
 		fCtxFlags = 0;
 		fParensStack = 0;
 	}
@@ -128,6 +129,15 @@ public class AbapContext {
 		return false;
 	}
 
+	public List<AbapToken> getAllTokens() {
+		return fTokens;
+	}
+	
+	public Set<TokenType> getAllowedTypes() {
+		return fNextPossibleTokenTypes;
+	}
+	
+	
 	/**
 	 * Retrieves the requested Token from the current context.
 	 * 
@@ -159,7 +169,7 @@ public class AbapContext {
 	}
 	
 	public boolean isTokenPossible(TokenType type) {
-		if (fNextPossibleTokenTypes.isEmpty()) {
+		if (type == TokenType.COMMENT || type == TokenType.NOP || fNextPossibleTokenTypes.isEmpty()) {
 			return true;
 		}
 		return fNextPossibleTokenTypes.contains(type);

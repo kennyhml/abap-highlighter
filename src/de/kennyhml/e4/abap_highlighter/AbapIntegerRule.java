@@ -54,6 +54,7 @@ public class AbapIntegerRule extends BaseAbapRule {
 		
 		fToken.setText(text);
 		scanner.getContext().addToken(fToken);
+		scanner.getContext().setNextPossibleTokens(Set.of());
 		return fToken;
 	}
 

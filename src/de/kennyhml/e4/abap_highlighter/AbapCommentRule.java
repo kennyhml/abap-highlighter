@@ -44,6 +44,7 @@ public class AbapCommentRule extends BaseAbapRule {
 			fToken.setText(text);
 			return fToken;
 		}
+		
 		return Token.UNDEFINED;
 	}
 

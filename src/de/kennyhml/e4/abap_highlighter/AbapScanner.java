@@ -9,6 +9,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.swt.widgets.Display;
 
 public class AbapScanner extends RuleBasedScanner {
 
@@ -49,6 +50,14 @@ public class AbapScanner extends RuleBasedScanner {
 			ret = super.nextToken();
 		}
 		commit();
+			
+		if (!ret.isUndefined() && ret instanceof AbapToken){
+			final AbapToken tk = new AbapToken((AbapToken)ret);
+			Display.getDefault().asyncExec(() -> {
+				System.out.println("Added '" + tk.getText() + "': " + tk.getType());
+			});
+
+		}
 		return ret;
 	}
 
@@ -126,7 +135,7 @@ public class AbapScanner extends RuleBasedScanner {
 	// The order of the rule matters!!!
 	private IRule[] fRules = new IRule[] { new AbapNonCharRule(), new AbapCommentRule(), new AbapStringRule(),
 			new AbapKeywordRule(), new AbapOperatorRule(), new AbapDelimiterRule(), new AbapFunctionRule(),
-			new AbapFieldRule(), new AbapIdentifierRule(), new AbapIntegerRule() };
+			new AbapFieldRule(), new AbapTypeIdentifierRule(), new AbapIdentifierRule(), new AbapIntegerRule() };
 
 	private int fCommittedOffset = 0;
 	private int fReadCount = 0;

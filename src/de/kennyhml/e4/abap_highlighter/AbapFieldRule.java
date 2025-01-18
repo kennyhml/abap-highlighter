@@ -79,6 +79,7 @@ public class AbapFieldRule extends BaseAbapRule {
 
 		fToken.setText(currWord);
 		ctx.addToken(fToken);
+		ctx.setNextPossibleTokens(Set.of());
 		return fToken;
 	}
 

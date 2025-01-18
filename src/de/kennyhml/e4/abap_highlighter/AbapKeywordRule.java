@@ -68,7 +68,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			text = text.replace("-", "");
 		}
 
-		if (!fKeywords.contains(text)) {
+		if (!fKeywords.contains(text) && !fKeywords.contains(text.replace(":", ""))) {
 			return Token.UNDEFINED;
 		}
 
@@ -77,7 +77,18 @@ public class AbapKeywordRule extends BaseAbapRule {
 		checkContextChanged(ctx);
 		
 		// Set next possible token type based on the keyword (if known)
-		ctx.setNextPossibleTokens(fSuccessorTypes.getOrDefault(text, Set.of()));
+		
+		boolean found = false;
+		for (Map.Entry<Set<String>, Set<TokenType>> entry : fSuccessorTypes.entrySet()) {
+			if (entry.getKey().contains(text)) {
+				ctx.setNextPossibleTokens(entry.getValue());
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			ctx.setNextPossibleTokens(Set.of());
+		}
 		return fToken;
 	}
 
@@ -88,9 +99,9 @@ public class AbapKeywordRule extends BaseAbapRule {
 
 		// Check for types: begin of ... end of.
 		if (ctx.hasWord("types:") && lastWord.equals("of")) {
-			if (ctx.lastTokenMatches(TokenType.KEYWORD, "begin")) {
+			if (ctx.tokenMatches(1, TokenType.KEYWORD, "begin")) {
 				ctx.activate(ContextFlag.STRUCT_DECL);
-			} else if (ctx.lastTokenMatches(TokenType.KEYWORD, "end")) {
+			} else if (ctx.tokenMatches(1, TokenType.KEYWORD, "end")) {
 				ctx.deactivate(ContextFlag.STRUCT_DECL);
 			}
 		} else if (fDataContextActivators.contains(lastWord)) {
@@ -132,10 +143,22 @@ public class AbapKeywordRule extends BaseAbapRule {
 			"requested", "testing", "duration", "short", "risk", "level", "harmless", "local", "global", "friends",
 			"interfaces", "renaming", "suffix", "structure", "resumable", "read-only", "interface", "endinterface");
 
+	
+	private static Set<TokenType> fNotKeyword = Set.of(TokenType.LITERAL, TokenType.STRING, TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.TYPE_IDENTIFIER, TokenType.FUNCTION);
+	
+	
 	// Map each keyword to the type of token that could follow afterwards
-	private static Map<String, Set<TokenType>> fSuccessorTypes = Map.ofEntries(
-			Map.entry("if", Set.of(TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.TYPE_IDENTIFIER)),
-			Map.entry("class", Set.of(TokenType.TYPE_IDENTIFIER)), Map.entry("methods", Set.of(TokenType.FUNCTION)));
+	private static Map<Set<String>, Set<TokenType>> fSuccessorTypes = Map.ofEntries(
+			Map.entry(Set.of("if", "and", "or", "not"), Set.of(TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.TYPE_IDENTIFIER)),
+			
+			// Comparisons
+			Map.entry(Set.of("eq", "ne", "lt", "gt", "le", "ge", "co", "cn", "ca", "na", "cs", "ns", "cp", "np"), fNotKeyword),
+			
+			Map.entry(Set.of("raising"), Set.of(TokenType.TYPE_IDENTIFIER)),
+			Map.entry(Set.of("type", "raising", "class", "new", "catch", "of", "conv", "value", "types", "cond", "corresponding", "reduce"), Set.of(TokenType.TYPE_IDENTIFIER, TokenType.KEYWORD)),
+			Map.entry(Set.of("class"), Set.of(TokenType.TYPE_IDENTIFIER)), 
+			Map.entry(Set.of("parameters", "parameters:"), Set.of(TokenType.TYPE_IDENTIFIER)),
+			Map.entry(Set.of("methods", "methods:"), Set.of(TokenType.FUNCTION)));
 
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
