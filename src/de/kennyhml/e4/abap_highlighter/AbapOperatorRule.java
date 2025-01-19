@@ -13,7 +13,8 @@ public class AbapOperatorRule extends BaseAbapRule {
 
 	@Override
 	public boolean isPossibleInContext(AbapContext ctx) {
-		return ctx.lastTokenMatches(TokenType.TYPE_IDENTIFIER) 
+		return ctx.lastTokenMatches(TokenType.KEYWORD) 
+				|| ctx.lastTokenMatches(TokenType.TYPE_IDENTIFIER) 
 				|| ctx.lastTokenMatches(TokenType.LITERAL) 
 				|| ctx.lastTokenMatchesAny(TokenType.DELIMITER, Set.of("]", ")"));
 	}
@@ -26,6 +27,7 @@ public class AbapOperatorRule extends BaseAbapRule {
 	
 	@Override
 	public IToken evaluate(AbapScanner scanner) {
+		AbapContext ctx = scanner.getContext();
 		int c = scanner.read();
 		if (c == AbapScanner.EOF || !fOpCharacters.contains((char) c)) {
 			return Token.UNDEFINED;
@@ -47,12 +49,17 @@ public class AbapOperatorRule extends BaseAbapRule {
 			scanner.unread();
 			fToken.setText(Character.toString(c));
 		}
-		scanner.getContext().addToken(fToken);
-		scanner.getContext().setNextPossibleTokens(Set.of());
+		
+		if (c == '!') {
+			ctx.setNextPossibleTokens(Set.of(TokenType.IDENTIFIER));
+		} else {
+			ctx.setNextPossibleTokens(Set.of());
+		}
+		ctx.addToken(fToken);
 		return fToken;
 	}
 
-	private static final Set<Character> fOpCharacters = Set.of('=', '>', '<', '+', '-', '~', '/');
+	private static final Set<Character> fOpCharacters = Set.of('=', '>', '<', '+', '-', '~', '/', '!');
 
 	// Complementary map of characters that can come after another character to form
 	// after an operator

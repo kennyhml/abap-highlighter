@@ -1,6 +1,7 @@
 package de.kennyhml.e4.abap_highlighter;
 
 import de.kennyhml.e4.abap_highlighter.AbapToken.TokenType;
+import de.kennyhml.e4.abap_highlighter.context.ContextFlag;
 
 import java.util.Set;
 
@@ -50,8 +51,7 @@ public class AbapDelimiterRule extends BaseAbapRule {
 		}
 
 		fToken.setText(Character.toString(c));
-		ctx.addToken(fToken);
-		ctx.setNextPossibleTokens(Set.of());
+		ctx.addToken(fToken);		
 		return fToken;
 	}
 	

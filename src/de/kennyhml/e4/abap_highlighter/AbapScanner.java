@@ -50,14 +50,6 @@ public class AbapScanner extends RuleBasedScanner {
 			ret = super.nextToken();
 		}
 		commit();
-			
-		if (!ret.isUndefined() && ret instanceof AbapToken){
-			final AbapToken tk = new AbapToken((AbapToken)ret);
-			Display.getDefault().asyncExec(() -> {
-				System.out.println("Added '" + tk.getText() + "': " + tk.getType());
-			});
-
-		}
 		return ret;
 	}
 

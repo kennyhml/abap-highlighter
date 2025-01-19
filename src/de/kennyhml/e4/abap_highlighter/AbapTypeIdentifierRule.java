@@ -73,7 +73,8 @@ public class AbapTypeIdentifierRule extends BaseAbapRule {
 	 * @return Whether the context requires a type.
 	 */
 	private boolean inTypeContext(AbapContext ctx) {
-		return ctx.getAllowedTypes().size() == 1 || isTypeReference(ctx) || isTypeInClass(ctx) || isTypeInMultiDeclContext(ctx);
+		return (ctx.getAllowedTypes().contains(TokenType.TYPE_IDENTIFIER) && !ctx.getAllowedTypes().contains(TokenType.IDENTIFIER)) 
+				|| isTypeReference(ctx) || isTypeInClass(ctx) || isTypeInMultiDeclContext(ctx);
 	}
 	
 	/**
