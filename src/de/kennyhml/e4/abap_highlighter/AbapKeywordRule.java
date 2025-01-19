@@ -28,6 +28,32 @@ public class AbapKeywordRule extends BaseAbapRule {
 
 		private static final Set<Character> fKeywordTerminators = Set.of(' ', '\r', '\n', '.', '(', '>');
 	}
+	
+	/**
+	 * @brief Defines a possible completion for a keyword
+	 */
+	private static class KeywordCompletion
+	{
+		public KeywordCompletion(String relation, Set<TokenType> upcomingTokenType) {
+			
+			this.completion = new TreeSet<>(Arrays.asList(relation.split(" ")));
+			this.upcomingTokenType = upcomingTokenType;
+		}
+		
+		public KeywordCompletion(String relation, TokenType upcomingTokenType) {
+			
+			this(relation, Set.of(upcomingTokenType));
+		}
+		
+		
+		public KeywordCompletion(String relation) {
+			this(relation, Set.of());
+		}
+		
+		public Set<String> completion; 
+		public Set<TokenType> upcomingTokenType;
+	}
+	
 
 	@Override
 	public boolean isPossibleInContext(AbapContext ctx) {
@@ -92,7 +118,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 		return fToken;
 	}
 
-	public void checkContextChanged(AbapContext ctx) {
+	private void checkContextChanged(AbapContext ctx) {
 
 		String lastWord = ctx.getLastToken().getText();
 		String withoutMod = lastWord.replaceAll(":", "");
@@ -116,6 +142,17 @@ public class AbapKeywordRule extends BaseAbapRule {
 			ctx.activate(ContextFlag.FN_MULTI_DECL);
 		}
 	}
+	
+	/**
+	 * @brief Checks whether the upcoming tokens after the scanned keyword
+	 * belong to the same expression. For example, after scanning the keyword
+	 * "ref", it is possible for it to group with "ref to".
+	 */
+	private String resolveRelatedKeywords(AbapScanner scanner, String text) {
+		
+		return text;
+	}
+	
 
 	private static final Set<String> fDataContextActivators = Set.of("data", "class-data", "parameters");
 	private static final Set<String> fFuncContextActivators = Set.of("methods", "class-methods");
@@ -149,17 +186,35 @@ public class AbapKeywordRule extends BaseAbapRule {
 	
 	// Map each keyword to the type of token that could follow afterwards
 	private static Map<Set<String>, Set<TokenType>> fSuccessorTypes = Map.ofEntries(
-			Map.entry(Set.of("if", "and", "or", "not"), Set.of(TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.TYPE_IDENTIFIER)),
+			Map.entry(Set.of("if", "and", "or", "not"), new TreeSet<>(Set.of(TokenType.KEYWORD, TokenType.IDENTIFIER, TokenType.TYPE_IDENTIFIER))),
 			
 			// Comparisons
 			Map.entry(Set.of("eq", "ne", "lt", "gt", "le", "ge", "co", "cn", "ca", "na", "cs", "ns", "cp", "np"), fNotKeyword),
 			
 			Map.entry(Set.of("raising"), Set.of(TokenType.TYPE_IDENTIFIER)),
-			Map.entry(Set.of("type", "raising", "class", "new", "catch", "of", "conv", "value", "types", "cond", "corresponding", "reduce"), Set.of(TokenType.TYPE_IDENTIFIER, TokenType.KEYWORD)),
+			Map.entry(Set.of("type", "raising", "class", "new", "catch", "of", "conv", "value", "types", "cond", "corresponding", "reduce"), Set.of(TokenType.TYPE_IDENTIFIER)),
 			Map.entry(Set.of("class"), Set.of(TokenType.TYPE_IDENTIFIER)), 
 			Map.entry(Set.of("parameters", "parameters:"), Set.of(TokenType.TYPE_IDENTIFIER)),
 			Map.entry(Set.of("methods", "methods:"), Set.of(TokenType.FUNCTION)));
 
+	private static Map<Set<String>, Set<KeywordCompletion>> fKeywordCompletions = Map.ofEntries(
+			// type ref to..., ref itself is also fully qualified to get an object reference, e.g ref #( obj ).
+			Map.entry(Set.of("ref"), 
+					Set.of(new KeywordCompletion("to", TokenType.TYPE_IDENTIFIER))), 
+			
+			// raising resumable(exception), optional, raising itself is fully qualified
+			Map.entry(Set.of("raising"), 
+					Set.of(new KeywordCompletion("resumable", TokenType.DELIMITER),
+							new KeywordCompletion(null, TokenType.TYPE_IDENTIFIER))
+					),
+			
+			Map.entry(Set.of("preferred"), Set.of(new KeywordCompletion("parameter", TokenType.IDENTIFIER))),
+
+			// type table of..
+			Map.entry(Set.of("table"), 
+					Set.of(new KeywordCompletion("of", TokenType.TYPE_IDENTIFIER)))
+			);
+	
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
 	private AbapToken fToken = new AbapToken(KEYWORD_COLOR, AbapToken.TokenType.KEYWORD);
