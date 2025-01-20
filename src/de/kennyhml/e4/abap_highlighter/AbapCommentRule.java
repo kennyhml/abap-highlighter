@@ -49,7 +49,7 @@ public class AbapCommentRule extends BaseAbapRule {
 	}
 
 	private boolean isCommentStart(int column, int c) {
-		return ((column == 1 && c == '*') || c == '"');
+		return ((column == 0 && c == '*') || c == '"');
 	}
 
 	private static final Color COMMENT_COLOR = new Color(87, 166, 74);
