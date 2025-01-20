@@ -83,14 +83,11 @@ public class AbapKeywordRule extends BaseAbapRule {
 			return Token.UNDEFINED;
 		}
 
-		// Remember that we dont need to manually unread the word because the
-		// scanner will rollback the advanced characters if the token is undefined!
 		String text = scanner.readNext(fDetector);
-
-		if (text == null) {
+		if (text == null || !isKeywordPossibleInContext(ctx, text)) {
 			return Token.UNDEFINED;
 		}
-
+		
 		// Special case for handling 'me' keyword as the dash is part of alot of
 		// other keywords and cannot simply be filtered out.
 		if (text.equals("me-")) {
@@ -105,20 +102,15 @@ public class AbapKeywordRule extends BaseAbapRule {
 		final KeywordCompletion completed = resolveRelatedKeywords(scanner, text);
 		if (completed != null) {
 			if (completed.text != null) {
-				fToken.setText(text + completed.text);
+				fToken.setText(text + " " + String.join(" ", completed.text));
 			} else {
 				fToken.setText(text);
 			}
 			ctx.setNextPossibleTokens(completed.upcomingTokenType);
-			
-			final String test = text;
-			Display.getDefault().asyncExec(() -> {
-				System.out.println("Completion of  " + test + ": " + completed.text);
-			});
 		} else {
 			fToken.setText(text);
 			ctx.addToken(fToken);
-			ctx.setNextPossibleTokens(Set.of());
+			ctx.clearNextPossibleTokens();;
 		}
 
 		ctx.addToken(fToken);
@@ -127,16 +119,27 @@ public class AbapKeywordRule extends BaseAbapRule {
 		return fToken;
 	}
 
+	
+	private boolean isKeywordPossibleInContext(AbapContext ctx, String text) {
+		// Only keyword that can appear during a struct declaration is the "end of ..." keyword.
+		// This will prevent fields of a structure being identified as keywords.
+		if (ctx.active(ContextFlag.STRUCT_DECL) && ctx.lastTokenMatches(TokenType.DELIMITER) && !text.equals("end")) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	private void checkContextChanged(AbapContext ctx) {
 
 		String lastWord = ctx.getLastToken().getText();
 		String withoutMod = lastWord.replaceAll(":", "");
 
 		// Check for types: begin of ... end of.
-		if (ctx.hasWord("types:") && lastWord.equals("of")) {
-			if (ctx.tokenMatches(1, KEYWORD, "begin")) {
+		if (ctx.hasWord("types:")) {
+			if (lastWord.equals("begin of")) {
 				ctx.activate(ContextFlag.STRUCT_DECL);
-			} else if (ctx.tokenMatches(1, KEYWORD, "end")) {
+			} else if (lastWord.equals("end of")) {
 				ctx.deactivate(ContextFlag.STRUCT_DECL);
 			}
 		} else if (fDataContextActivators.contains(lastWord)) {

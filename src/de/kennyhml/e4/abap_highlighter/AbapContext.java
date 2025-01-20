@@ -179,6 +179,10 @@ public class AbapContext {
 	public void setNextPossibleTokens(Set<TokenType> types) {
 		fNextPossibleTokenTypes = types;
 	}
+	
+	public void clearNextPossibleTokens() {
+		fNextPossibleTokenTypes = Set.of();
+	}
 
 	/**
 	 * Checks if the token at the given offset matches the criteria.

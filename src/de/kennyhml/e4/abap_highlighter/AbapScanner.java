@@ -1,7 +1,5 @@
 package de.kennyhml.e4.abap_highlighter;
 
-import java.util.Set;
-
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.rules.ICharacterScanner;
 import org.eclipse.jface.text.rules.IRule;
@@ -9,12 +7,12 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.RuleBasedScanner;
 import org.eclipse.jface.text.rules.Token;
-import org.eclipse.swt.widgets.Display;
 
 public class AbapScanner extends RuleBasedScanner {
 
 	public AbapScanner() {
 		setRules(fRules);
+		fDefaultReturnToken = Token.UNDEFINED;
 	}
 
 	/**
@@ -45,7 +43,7 @@ public class AbapScanner extends RuleBasedScanner {
 		
 		// Token not recognized, try to allow all token types again and recheck
 		if (ret.isUndefined()) {
-			fContext.setNextPossibleTokens(Set.of());
+			fContext.clearNextPossibleTokens();
 			rollback();
 			ret = super.nextToken();
 		}
