@@ -180,10 +180,6 @@ public class AbapKeywordRule extends BaseAbapRule {
 			return null;
 		}
 		
-		// We can already commit the current word here since we are sure this is
-		// at least a keyword. That way we can easily roll back here.
-		scanner.commit();
-		
 		int maxWords = 0;
 		int wordCount = 0;
 		for (KeywordCompletion comp : completions) {
@@ -210,12 +206,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			
 			// check the different continuations
 			String nextWord = scanner.peekNext(fDetector);
-			
-			// The word isnt a keyword at all, no relation found.
-			if (!fAllKeywords.contains(nextWord)) {
-				break;
-			}
-			scanner.readNext(fDetector);
+			boolean anyMatched = false;
 			
 			// Check each completion we are still tracking whether its next word
 			// matches with the word we scanned. If it does remember how many times
@@ -237,8 +228,13 @@ public class AbapKeywordRule extends BaseAbapRule {
 					continue;
 				}
 				
+				anyMatched = true;
 				matched.set(i, wordCount + 1);
 			}
+			if (!anyMatched) {
+				break;
+			}
+			scanner.readNext(fDetector);
 			ret += nextWord;
 			wordCount++;
 		};
@@ -262,10 +258,6 @@ public class AbapKeywordRule extends BaseAbapRule {
 				match = completions.get(i);
 				longest = matchedWords;
 			}
-		}
-		
-		if (match == null) {
-			scanner.rollback();
 		}
 		return match;
 	}
@@ -299,9 +291,8 @@ public class AbapKeywordRule extends BaseAbapRule {
 	private static Map<Set<String>, List<KeywordCompletion>> fKeywordCompletions = Map.ofEntries(
 			
 			// could be followed by pretty much anything..
-			Map.entry(Set.of("if", "and", "or", "not"),
+			Map.entry(Set.of("if", "and", "or"),
 					List.of(new KeywordCompletion(null))),
-			
 			
 			// keywords that always complete a statement and are always followed by a dot.
 			Map.entry(Set.of("endif", "endclass", "endinterface", "endmethod", "implementation", "endloop"),
@@ -310,7 +301,13 @@ public class AbapKeywordRule extends BaseAbapRule {
 			Map.entry(Set.of("is"),
 					List.of(new KeywordCompletion("initial", Set.of(KEYWORD, DELIMITER)),
 							new KeywordCompletion("bound", Set.of(KEYWORD, DELIMITER)),
-							new KeywordCompletion("not", Set.of(KEYWORD))
+							new KeywordCompletion(null, Set.of(KEYWORD, DELIMITER))
+							)),
+			
+			Map.entry(Set.of("not"),
+					List.of(new KeywordCompletion("initial", Set.of(KEYWORD, DELIMITER)),
+							new KeywordCompletion("bound", Set.of(KEYWORD, DELIMITER)),
+							new KeywordCompletion(null, Set.of(KEYWORD))	
 							)),
 			
 			Map.entry(Set.of("public", "protected", "private"),
@@ -361,6 +358,10 @@ public class AbapKeywordRule extends BaseAbapRule {
 							new KeywordCompletion("lines of", Set.of(IDENTIFIER, KEYWORD, TYPE_IDENTIFIER)),
 							new KeywordCompletion("corresponding", Set.of(IDENTIFIER, KEYWORD, TYPE_IDENTIFIER))
 					)),
+			
+			
+			Map.entry(Set.of("to"), 
+					List.of(new KeywordCompletion(null, Set.of(TYPE_IDENTIFIER, IDENTIFIER)))),
 			
 			
 			Map.entry(Set.of("class", "interface"), 
@@ -421,7 +422,9 @@ public class AbapKeywordRule extends BaseAbapRule {
 					),
 			// type table of..
 			Map.entry(Set.of("table"), 
-					List.of(new KeywordCompletion("of", TokenType.TYPE_IDENTIFIER))));
+					List.of(new KeywordCompletion("of", TokenType.TYPE_IDENTIFIER)))
+			
+			);
 
 	private static Color KEYWORD_COLOR = new Color(86, 156, 214);
 
