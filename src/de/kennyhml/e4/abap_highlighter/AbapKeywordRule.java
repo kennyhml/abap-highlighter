@@ -303,7 +303,8 @@ public class AbapKeywordRule extends BaseAbapRule {
 					List.of(new KeywordCompletion(null))),
 			
 			
-			Map.entry(Set.of("endif", "endclass", "endinterface", "endmethod"),
+			// keywords that always complete a statement and are always followed by a dot.
+			Map.entry(Set.of("endif", "endclass", "endinterface", "endmethod", "implementation", "endloop"),
 					List.of(new KeywordCompletion(null, DELIMITER))),
 			
 			Map.entry(Set.of("is"),
@@ -318,6 +319,19 @@ public class AbapKeywordRule extends BaseAbapRule {
 							new KeywordCompletion("not", Set.of(KEYWORD))
 							)),
 			
+			Map.entry(Set.of("create"),
+					List.of(new KeywordCompletion("public", Set.of(KEYWORD, DELIMITER)),
+							new KeywordCompletion("protected", Set.of(KEYWORD, DELIMITER)),
+							new KeywordCompletion("private", Set.of(KEYWORD, DELIMITER))
+							)),
+			
+			
+			Map.entry(Set.of("definition", "abstract", "final"),
+					List.of(new KeywordCompletion(null, Set.of(KEYWORD, DELIMITER)))),
+			
+			
+			Map.entry(Set.of("inheriting"),
+					List.of(new KeywordCompletion("from", Set.of(TYPE_IDENTIFIER)))),
 			
 			// type ref to..., ref itself is also fully qualified to get an object
 			// reference, e.g ref #( obj ).
@@ -328,8 +342,25 @@ public class AbapKeywordRule extends BaseAbapRule {
 			// "For all entries in.."
 			Map.entry(Set.of("for"), 
 					List.of(new KeywordCompletion(null, IDENTIFIER),
-							new KeywordCompletion("all entries in", IDENTIFIER))
+							new KeywordCompletion("all entries in", IDENTIFIER),
+							new KeywordCompletion("testing", Set.of(KEYWORD, DELIMITER)))
 					),
+			
+			
+			Map.entry(Set.of("raise"), 
+					List.of(new KeywordCompletion("exception type", TYPE_IDENTIFIER),
+							new KeywordCompletion("exception", IDENTIFIER)
+					)),
+			
+			
+			// Could be any token that yields a value, e.g access to static class attribute, 
+			// function return value of plain old variable
+			Map.entry(Set.of("append"), 
+					List.of(new KeywordCompletion(null, Set.of(IDENTIFIER, KEYWORD, TYPE_IDENTIFIER)),
+							new KeywordCompletion("initial line to", Set.of(IDENTIFIER, KEYWORD, TYPE_IDENTIFIER)),
+							new KeywordCompletion("lines of", Set.of(IDENTIFIER, KEYWORD, TYPE_IDENTIFIER)),
+							new KeywordCompletion("corresponding", Set.of(IDENTIFIER, KEYWORD, TYPE_IDENTIFIER))
+					)),
 			
 			
 			Map.entry(Set.of("class", "interface"), 
@@ -350,7 +381,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			
 			
 			Map.entry(Set.of("data", "data:", "constants", "constants:"),
-					List.of(new KeywordCompletion(null, Set.of(TYPE_IDENTIFIER, KEYWORD)))),
+					List.of(new KeywordCompletion(null, Set.of(IDENTIFIER, KEYWORD)))),
 			
 			// "begin of mytype" ... "end of mytype"..
 			Map.entry(Set.of("begin", "end", "range", "line"), 
@@ -377,7 +408,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			Map.entry(Set.of("parameters", "parameters:"), 
 					List.of(new KeywordCompletion(null, IDENTIFIER))),
 			
-			Map.entry(Set.of("methods", "methods:"), 
+			Map.entry(Set.of("method", "methods", "methods:"), 
 					List.of(new KeywordCompletion(null, FUNCTION))),
 
 			
