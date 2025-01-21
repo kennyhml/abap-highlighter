@@ -95,7 +95,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			text = text.replace("-", "");
 		}
 
-		if (!fKeywords.contains(text) && !fKeywords.contains(text.replace(":", ""))) {
+		if (!fAllKeywords.contains(text) && !fAllKeywords.contains(text.replace(":", ""))) {
 			return Token.UNDEFINED;
 		}
 
@@ -108,9 +108,11 @@ public class AbapKeywordRule extends BaseAbapRule {
 			}
 			ctx.setNextPossibleTokens(completed.upcomingTokenType);
 		} else {
-			fToken.setText(text);
-			ctx.addToken(fToken);
-			ctx.clearNextPossibleTokens();;
+			return Token.UNDEFINED;
+//			fToken.setText(text);
+//			ctx.addToken(fToken);
+//			ctx.clearNextPossibleTokens();
+			
 		}
 
 		ctx.addToken(fToken);
@@ -162,9 +164,6 @@ public class AbapKeywordRule extends BaseAbapRule {
 	 */
 	private KeywordCompletion resolveRelatedKeywords(AbapScanner scanner, String text) {
 
-		// We can already commit the current word here since we are sure this is
-		// at least a keyword. That way we can easily roll back here.
-		scanner.commit();
 		String ret = text;
 		
 		List<KeywordCompletion> completions = null;
@@ -180,6 +179,10 @@ public class AbapKeywordRule extends BaseAbapRule {
 		if (completions == null) {
 			return null;
 		}
+		
+		// We can already commit the current word here since we are sure this is
+		// at least a keyword. That way we can easily roll back here.
+		scanner.commit();
 		
 		int maxWords = 0;
 		int wordCount = 0;
@@ -209,7 +212,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 			String nextWord = scanner.peekNext(fDetector);
 			
 			// The word isnt a keyword at all, no relation found.
-			if (!fKeywords.contains(nextWord)) {
+			if (!fAllKeywords.contains(nextWord)) {
 				break;
 			}
 			scanner.readNext(fDetector);
@@ -270,7 +273,7 @@ public class AbapKeywordRule extends BaseAbapRule {
 	private static final Set<String> fDataContextActivators = Set.of("data", "class-data", "parameters");
 	private static final Set<String> fFuncContextActivators = Set.of("methods", "class-methods");
 
-	private static final Set<String> fKeywords = Set.of("if", "else", "elseif", "endif", "class", "endclass", "method",
+	private static final Set<String> fAllKeywords = Set.of("if", "else", "elseif", "endif", "class", "endclass", "method",
 			"endmethod", "methods", "type", "types", "implementation", "definition", "data", "table", "of", "public",
 			"private", "protected", "section", "begin", "end", "final", "create", "is", "not", "initial", "and", "or",
 			"importing", "exporting", "changing", "raising", "receiving", "line", "range", "loop", "at", "endloop",
@@ -299,11 +302,35 @@ public class AbapKeywordRule extends BaseAbapRule {
 			Map.entry(Set.of("if", "and", "or", "not"),
 					List.of(new KeywordCompletion(null))),
 			
+			
+			Map.entry(Set.of("endif", "endclass", "endinterface", "endmethod"),
+					List.of(new KeywordCompletion(null, DELIMITER))),
+			
+			Map.entry(Set.of("is"),
+					List.of(new KeywordCompletion("initial", Set.of(KEYWORD, DELIMITER)),
+							new KeywordCompletion("bound", Set.of(KEYWORD, DELIMITER)),
+							new KeywordCompletion("not", Set.of(KEYWORD))
+							)),
+			
+			Map.entry(Set.of("public", "protected", "private"),
+					List.of(new KeywordCompletion("section", Set.of(DELIMITER)),
+							new KeywordCompletion(null, Set.of(KEYWORD, DELIMITER)),
+							new KeywordCompletion("not", Set.of(KEYWORD))
+							)),
+			
+			
 			// type ref to..., ref itself is also fully qualified to get an object
 			// reference, e.g ref #( obj ).
 			Map.entry(Set.of("ref"), 
 					List.of(new KeywordCompletion("to", TYPE_IDENTIFIER))),
 
+			// Table comprehension, "for line in ..."
+			// "For all entries in.."
+			Map.entry(Set.of("for"), 
+					List.of(new KeywordCompletion(null, IDENTIFIER),
+							new KeywordCompletion("all entries in", IDENTIFIER))
+					),
+			
 			
 			Map.entry(Set.of("class", "interface"), 
 					List.of(new KeywordCompletion(null, TYPE_IDENTIFIER))),
@@ -311,18 +338,29 @@ public class AbapKeywordRule extends BaseAbapRule {
 			// raising resumable(exception), optional, raising itself is fully qualified
 			Map.entry(Set.of("raising"),
 					List.of(new KeywordCompletion("resumable", DELIMITER),
-							new KeywordCompletion(null, TYPE_IDENTIFIER))),
+							new KeywordCompletion(null, TYPE_IDENTIFIER))
+					),
 
 			// could be "type ref to", but also "types: begin of.."
 			Map.entry(Set.of("type", "types:"),
 					List.of(new KeywordCompletion(null, Set.of(TYPE_IDENTIFIER, KEYWORD)))),
-			
+
 			Map.entry(Set.of("types"),
 					List.of(new KeywordCompletion(null, Set.of(TYPE_IDENTIFIER)))),
 			
+			
+			Map.entry(Set.of("data", "data:", "constants", "constants:"),
+					List.of(new KeywordCompletion(null, Set.of(TYPE_IDENTIFIER, KEYWORD)))),
+			
 			// "begin of mytype" ... "end of mytype"..
-			Map.entry(Set.of("begin", "end"), 
-					List.of(new KeywordCompletion("of", Set.of(TYPE_IDENTIFIER)))),
+			Map.entry(Set.of("begin", "end", "range", "line"), 
+					List.of(new KeywordCompletion("of", Set.of(TYPE_IDENTIFIER)),
+							new KeywordCompletion("of block", Set.of(IDENTIFIER))
+					)),
+			
+			
+ 			Map.entry(Set.of("loop"), 
+					List.of(new KeywordCompletion("at", Set.of(FUNCTION, TYPE_IDENTIFIER, IDENTIFIER)))),
 			
 			// Could be "value some_type( )" but also "data x type i value 123", so type or literal
  			Map.entry(Set.of("value"), 
