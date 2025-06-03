@@ -1,3 +1,6 @@
+# Warning
+I have abandoned this project for the time being because I hate java.
+
 # ABAP Highlighter
 A lightweight plug-in for [Eclipse](eclipse) that works with and modifies the [ADT Plugin](ADT) to provide better syntax highlighting for the [ABAP](ABAP) programming language.
 It aims to address the highly dissatisfactory ADT syntax highlighting, which groups together tokens with vastly different meanings, to make looking at ABAP code slightly
